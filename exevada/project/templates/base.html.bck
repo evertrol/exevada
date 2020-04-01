@@ -1,0 +1,20 @@
+{% load staticfiles %}
+<!doctype html>
+<html lang="en">
+<head>{% block head %}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Extreme Event Attribution Database{% endblock title %}</title>
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" media="screen and (max-width: 640px)" href="{% static 'css/small.css' %}" />
+{% endblock stylesheets %}
+{% block scripts %}{% endblock scripts %}
+{% endblock head %}</head>
+<body>
+<nav>{% block nav %}{% include "nav.html" %}{% endblock nav %}</nav>
+<main>{% block content %}
+{% endblock content %}</main>
+{% block footer %}{% include "footer.html" %}{% endblock footer %}
+</body>
+</html>

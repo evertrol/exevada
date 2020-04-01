@@ -1,0 +1,1 @@
+<a href="{% url 'main:index' %}">home</a><a href="{% url 'events:events' %}">events</a>

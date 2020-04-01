@@ -1,0 +1,8 @@
+{% extends "events/base.html" %}
+{% load static %}
+{% block content %}{{ block.super }}
+<h1>The Extreme Event Attribution Database</h1>
+
+{{ object }}
+
+{% endblock content %}

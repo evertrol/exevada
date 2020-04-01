@@ -1,0 +1,12 @@
+{% extends "exevada/base.html" %}
+{% load static %}
+{% block content %}{{ block.super }}
+<h1>List of regions</h1>
+
+<ul>
+{% for region in regions %}
+<li>{{ region.name }}</li>
+{% endfor %}
+</lu>
+
+{% endblock content %}

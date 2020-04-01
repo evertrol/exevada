@@ -1,0 +1,12 @@
+{% extends "events/base.html" %}
+{% load static %}
+{% block content %}{{ block.super }}
+<h1>List of events</h1>
+
+<ul>
+{% for event in events %}
+<li>{{ event }}</li>
+{% endfor %}
+</ul>
+
+{% endblock content %}
