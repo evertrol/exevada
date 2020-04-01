@@ -1,0 +1,19 @@
+# The Extreme Event Attribution Database
+
+The Extreme Event Attribution Database, Exevada, is a database holding
+simulations of extreme weather events due to climate change, allowing
+researches and policy makers to search online for the simulation
+results of such events, their chances of occurring and their impacts.
+
+
+## Installation
+
+Installation is detailed in the INSTALL file.
+
+
+## License and copyright
+
+This project copyright 2020, Netherlands eScience Center, and is
+licensed under the Apache License 2.0.
+
+See the NOTICE and LICENSE files.
