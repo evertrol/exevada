@@ -1,4 +1,5 @@
 from django.contrib import admin
+from nested_inline.admin import NestedStackedInline, NestedModelAdmin
 from . import models
 
 
@@ -6,60 +7,37 @@ from . import models
 class Region(admin.ModelAdmin):
     pass
 
+@admin.register(models.ObservationDataSet)
+class ObservationDataSet(admin.ModelAdmin):
+    pass
 
-class Impact(admin.StackedInline):
-    model = models.Impact
+@admin.register(models.ModelDataSet)
+class ModelDataSet(admin.ModelAdmin):
+    pass
 
+class JournalPaperInline(NestedStackedInline):
+    model = models.JournalPaper
+    extra = 0
 
-class Synthesis(admin.StackedInline):
-    models = models.Synthesis
+class PressReleaseInline(NestedStackedInline):
+    model = models.PressCommunication
+    extra = 0
 
-
-class ObsDatasetInline(admin.StackedInline):
-    model = models.ObsDataset
+class ObservationAnalysisInline(NestedStackedInline):
+    model = models.ObservationAnalysis
     extra = 1
 
-
-#@admin.register(models.ModelDataset)
-class ModelDatasetInline(admin.StackedInline):
-    model = models.ModelDataset
+class ModelAnalysisInline(NestedStackedInline):
+    model = models.ModelAnalysis
     extra = 1
 
-
-@admin.register(models.ObsDataset)
-class ObsDataset(admin.ModelAdmin):
-    pass
-
-
-@admin.register(models.ModelDataset)
-class ModelDataset(admin.ModelAdmin):
-    pass
-
-
-@admin.register(models.Impact)
-class Impact(admin.ModelAdmin):
-    pass
-
-
-
-@admin.register(models.Synthesis)
-class Synthesis(admin.ModelAdmin):
-    pass
-
-
-@admin.register(models.FitParameters)
-class FitParameters(admin.ModelAdmin):
-    pass
-
-
-@admin.register(models.ReturnTime)
-class ReturnTime(admin.ModelAdmin):
-    pass
-
+class AttributionInline(NestedStackedInline):
+    model = models.Attribution
+    extra = 1
+    inlines = [ObservationAnalysisInline, ModelAnalysisInline, JournalPaperInline, PressReleaseInline]
 
 @admin.register(models.Event)
-class Event(admin.ModelAdmin):
+class Event(NestedModelAdmin):
     inlines = [
-        ObsDatasetInline,
-        ModelDatasetInline
+        AttributionInline,
     ]

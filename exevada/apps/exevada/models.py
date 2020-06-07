@@ -1,133 +1,131 @@
 from django.contrib.gis.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
-
-
-PR_VALIDATOR = [MinValueValidator(0), MaxValueValidator(1)]
+from django.utils.translation import gettext_lazy as _
 
 
 class Region(models.Model):
-    name = models.CharField(max_length=255, unique=True,
+    name = models.CharField(max_length=256, unique=True,
                             help_text="Region name")
     area = models.MultiPolygonField(help_text="One or more polygons making up the region")
-    #event = models.ForeignKey('Event', on_delete=models.CASCADE, related_name='')
-
-
-class Season(models.Model):
-    """Season given by a starting and ending month
-
-    Not the usual djf, mam, jja or son seasons
-
-    """
-
-    MONTHS = [
-        (1, "January"),
-        (2, "Februari"),
-        (3, "March"),
-        (4, "April"),
-        (5, "May"),
-        (6, "June"),
-        (7, "July"),
-        (8, "August"),
-        (9, "September"),
-        (10, "October"),
-        (11, "November"),
-        (12, "December")
-    ]
-
-    start = models.IntegerField(choices=MONTHS, help_text="Starting month")
-    end = models.IntegerField(choices=MONTHS, help_text="Ending month")
-    event = models.ForeignKey('Event', on_delete=models.CASCADE, related_name='season')
-
-
-class Event(models.Model):
-    name = models.CharField(max_length=512,
-                            help_text="Short, descriptive name or title for this event")
-    region = models.ForeignKey('Region', on_delete=models.CASCADE)
-    startdate = models.DateField(help_text="Event starting date")
-    duration = models.PositiveIntegerField(help_text="Duration of the event "
-                                           "in number of (whole) days")
-    variable = models.CharField(max_length=255, help_text="Event variable")
-    fitted_distribution = models.CharField(max_length=512, help_text="Distribution fitted")
-    impact = models.OneToOneField('Impact', on_delete=models.CASCADE)
-    synthesis = models.OneToOneField('Synthesis', on_delete=models.CASCADE)
-
     def __str__(self):
         return self.name
 
+
+class AnalysisMixin(models.Model):
+    attribution = models.ForeignKey("Attribution", on_delete=models.CASCADE, related_name="%(class)ss")
+    mu = models.FloatField(help_text="Fitted location parameter")
+    sigma = models.FloatField(help_text="Fitted scale parameter", validators=[MinValueValidator(0.0)])
+    xi = models.FloatField(help_text="Fitted shape parameter")
+    return_period = models.FloatField(help_text="Return period (yr)", validators=[MinValueValidator(0.0)], default=0.0)
+    return_period_lower_bound = models.FloatField(help_text="Return period lower bound", validators=[MinValueValidator(0.0)], default=0.0)
+    return_period_upper_bound = models.FloatField(help_text="Return period upper bound", validators=[MinValueValidator(0.0)], default=0.0)
+    pr = models.FloatField(help_text="Probability ratio", validators=[MinValueValidator(0.0)], default=0.0)
+    delta_I = models.FloatField(help_text="Change in intensity", default=0.0)
+    comments = models.TextField(help_text="Remarks", default="none")
+    class Meta:
+        abstract = True
+
+
+class ObservationDataSet(models.Model):
+    name = models.CharField(max_length=256, help_text="Observation dataset")
+    url = models.URLField(max_length=512, unique=True, default="none")
+    doi = models.CharField(max_length=256, help_text="DOI of dataset", unique=True, default="none")
+    def __str__(self):
+        return self.name
+
+
+class ModelDataSet(models.Model):
+    model_name = models.CharField(max_length=256, help_text="Model output dataset")
+    experiment = models.TextField(help_text="Experiment description")
+    url = models.URLField(max_length=512, unique=True, default="none")
+    doi = models.CharField(max_length=256, help_text="DOI of dataset", unique=True, default="none")
+    def __str__(self):
+        return '_'.join([self.model_name, self.experiment])
+
+
+class Event(models.Model):
+    class Season(models.TextChoices):
+        DJJ = "DJJ", _("Dec-Feb")
+        MAM = "MAM", _("Mar-May")
+        JJA = "JJA", _("Jun-Aug")
+        SON = "SON", _("Sep-Nov")
+    name = models.CharField(max_length=128,
+                            help_text="Short, descriptive name or title for this event")
+    region = models.ForeignKey("Region", on_delete=models.CASCADE)
+    startdate = models.DateField(help_text="Event starting date")
+    duration = models.PositiveIntegerField(help_text="Duration of the event (nr of days)")
+    season = models.CharField(max_length=8, choices=Season.choices, help_text="Season", default=Season.DJJ)
+    deaths = models.PositiveIntegerField(help_text="Number of deaths", default=0)
+    people_affected = models.PositiveIntegerField(help_text="Number of people affected", default=0)
+    economical_loss = models.DecimalField(max_digits=12, decimal_places=2, help_text="Estimated economic loss in Keuro", default=0)
+    ecological_impact = models.CharField(max_length=2048, help_text="Ecological impact", default="none")
+    attribution_request = models.CharField(max_length=1024, help_text="Request for attribution", default="none")
+    comments = models.TextField(help_text="Remarks", default="none")
+    def __str__(self):
+        return self.name
     def get_absolute_url(self):
-            return reverse('event', args=[self.pk])
+        return reverse('event', args=[self.pk])
 
 
-class Impact(models.Model):
-    deaths = models.DecimalField(max_digits=12, decimal_places=2, help_text="Number of deaths")
-    affected = models.DecimalField(max_digits=12, decimal_places=2, help_text="Number of people affected")
-    request = models.CharField(max_length=1024, help_text="Request for attribution")
-    comments = models.TextField(help_text="Remarks")
-
+#TODO: Add region and time scale for variable
+class Attribution(models.Model):
+    class MeteoVariable(models.TextChoices):
+        Tmax  = "Tmax", _("maximum temperature")
+        Tmin  = "Tmin", _("minimum temperature")
+        Tmean = "Tmean", _("mean temperature")
+        Pr    = "Pr", _("precipitation")
+    class DistributionType(models.TextChoices):
+        Gauss = "Gauss", _("Gauss")
+        GPD   = "Generalized Pareto", _("generalized Pareto")
+        GEV = "Generalized Extreme Value", _("generalized extreme value")
+        Gumbel = "Gumbel", _("Gumbel")
+        Gamma = "Gamma", _("gamma")
+    event = models.ForeignKey("Event", on_delete=models.CASCADE, related_name="attributions")
+    variable = models.CharField(max_length=16, choices=MeteoVariable.choices, help_text="Event variable", default=MeteoVariable.Tmax)
+    fitted_distribution = models.CharField(max_length=64, choices=DistributionType.choices, help_text="Fitted distribution", default=DistributionType.GEV)
+    pr = models.FloatField(help_text="Synthesis probability ratio", validators=[MinValueValidator(0.0)], default=0.0)
+    delta_i = models.FloatField(help_text="Synthesis change in intensity", default=0.0)
+    conclusions = models.TextField(help_text="Synthesis conclusions", default="none")
+    contact = models.CharField(max_length=1024, help_text="Contact email adress", default="none")
+    webpage = models.URLField(max_length=512, help_text="Relevant web page", default="https://attribution.climate.copernicus.eu")
     def __str__(self):
-        return self.comments[:80]
+        return '_'.join([str(self.event), self.contact])
 
 
-class Synthesis(models.Model):
-    pr = models.FloatField(validators=PR_VALIDATOR,
-                           help_text="Probability ratio")
-    delta_i = models.FloatField(help_text="Change in intensity")
-    conclusions = models.TextField(help_text="Conclusions")
-    contact = models.CharField(max_length=1024, help_text="Contact (e.g., lead author)")
-    webpage = models.URLField(max_length=512, help_text="Relevant web page")
-    doi = models.CharField(max_length=255, help_text="DOI (no URL) of related "
-                           "peer-review publication")
-
-    class Meta:
-        verbose_name_plural = 'syntheses'
-
+class Publication(models.Model):
+    subject = models.ForeignKey("Attribution", on_delete=models.CASCADE, related_name="%(class)ss")
+    title = models.CharField(max_length=1024, help_text="Publication title", default="none")
+    doi = models.CharField(max_length=256, help_text="DOI (no URL) of related publication", unique=True, default="none")
+    authors = models.CharField(max_length=1024, help_text="Author list", default="")
+    date = models.DateField(help_text="Publication date")
+    url = models.URLField(max_length=512, unique=True)
     def __str__(self):
-        return self.conclusions[:80]
-
-
-class FitParameters(models.Model):
-    obsdataset = models.ForeignKey('ObsDataset', on_delete=models.CASCADE,
-                                   related_name="best_fit_value")
-    mu = models.FloatField(help_text="Mu value")
-    sigma = models.FloatField(help_text="Sigma value")
-    xi = models.FloatField(help_text="Xi value")
-    alpha = models.FloatField(help_text="Alpha value")
-
+        return self.title
     class Meta:
-        verbose_name_plural = 'fit parameters'
+        abstract=True
 
 
-class ReturnTime(models.Model):
-    obsdataset = models.ForeignKey('ObsDataset', on_delete=models.CASCADE,
-                                   related_name="return_period")
-    value = models.FloatField(help_text="Best fit value")
-    lower = models.FloatField(help_text="Lower bound")
-    upper = models.FloatField(help_text="Upper bound")
+class JournalPaper(Publication):
+    journal = models.CharField(max_length=256, help_text="Journal")
 
 
+class PressCommunication(Publication):
+    medium = models.CharField(max_length=256, help_text="Medium")
 
 
-class ObsDataset(models.Model):
-    event = models.ForeignKey('Event', on_delete=models.CASCADE,
-                              related_name='observational_datasets')
-    value = models.FloatField(help_text="Variable value")
-    doi = models.CharField(max_length=512, help_text="DOI or URL for the dataset or time series")
-    pr = models.FloatField(validators=PR_VALIDATOR,
-                           help_text="Probability ratio")
-    delta_i = models.FloatField(help_text="Change in intensity")
-    comments = models.TextField(help_text="Remarks")
-
+class ObservationAnalysis(AnalysisMixin):
+    dataset = models.ForeignKey("ObservationDataSet", on_delete=models.CASCADE)
+    value = models.FloatField(help_text="Variable value for this observation dataset", default=0.0)
+    def __str__(self):
+        return '_'.join([str(super(self).attribution), str(self.dataset)])
     class Meta:
-        verbose_name = "observational dataset"
+        verbose_name_plural = "observation analyses"
 
 
-class ModelDataset(models.Model):
-    event = models.ForeignKey('Event', on_delete=models.CASCADE,
-                              related_name='model_datasets')
-    model_type = models.CharField(max_length=512,
-                                  help_text="Statistical model applied to model data")
-    period = models.CharField(max_length=128, help_text="Event return period")
-    trend = models.CharField(max_length=512, help_text="Trend")
-    pr = models.FloatField(validators=PR_VALIDATOR,
-                           help_text="Probability ratio")
-    delta_i = models.FloatField(help_text="Change in intensity")
+class ModelAnalysis(AnalysisMixin):
+    dataset = models.ForeignKey("ModelDataSet", on_delete=models.CASCADE)
+    trend = models.FloatField(help_text="Trend", default=0.0)
+    def __str__(self):
+        return '_'.join([str(super(self).attribution), str(self.dataset)])
+    class Meta:
+        verbose_name_plural = "model analyses"

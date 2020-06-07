@@ -30,7 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
-
+    'nested_inline',
     'apps.exevada',
 ]
 
@@ -70,8 +70,11 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.spatialite',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'exevada',
+        'USER': 'c3s62admin',
+        'PASSWORD': 'c3s62psswd',
+        'HOST': 'localhost'
     }
 }
 

@@ -65,7 +65,7 @@ need to use Python's package manager instead of your system's package
 manager, as this is a fairly recent version (as of April 2020) of
 Django:
 
-        sudo python3 -m pip install Django
+        sudo python3 -m pip install Django django-nested-inline
 
 In case you are using PostgreSQL, install the Psycopg2 library as well:
 
