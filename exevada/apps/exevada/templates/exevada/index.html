@@ -1,12 +1,55 @@
-{% extends "exevada/base.html" %}
-{% load static %}
-{% block content %}{{ block.super }}
-<h1>The Extreme Event Attribution Database</h1>
-
-<h2>Events in the database</h2>
-
-{% for event in events %}
-{{ event }}
-{% endfor %}
-
-{% endblock content %}
+{% extends 'exevada/base.html' %}
+{% block navbar_collapse_nav %}
+<ul class="navbar-nav mr-auto">
+    <li class="nav-item">
+        <a class="nav-link" href="events">
+            Events
+            <span class="sr-only">(current)</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="attributions">
+            Attributions
+            <span class="sr-only">(current)</span>
+        </a>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="dropdowndatasets" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Datasets
+        </a>
+        <div class="dropdown-menu" aria-labelledby="dropdowndatasets">
+            <a class="dropdown-item" href="obsdata">Observation data</a>
+            <a class="dropdown-item" href="moddata">Model simulations</a>
+        </div>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/admin">
+            Admin
+            <span class="sr-only">(current)</span>
+        </a>
+    </li>    
+    <script th:inline="javascript">
+        $(document).ready(function(){
+            $(".dropdown-toggle").dropdown();
+        });
+    </script>
+        <script th:inline="javascript">
+            $('#buttonsearch').click(function(){
+                    $('#formsearch').slideToggle( "fast",function(){
+                         $( '#content' ).toggleClass( "moremargin" );
+                    } );
+                    $('#searchbox').focus()
+                    $('.openclosesearch').toggle();
+            });    
+    </script>    
+</ul>
+<form class="form-inline my-2 my-md-0">
+    <input class="form-control" type="text" placeholder="Search">
+</form>
+{% endblock %}
+{% block container %}
+<div class="pt-5">
+<h2>Extreme event attribution catalogue</h2>
+This is the extreme event attribution database (exevada). This database will contain all attributions performed by the Copernicus prototype climate attribution service
+</div>
+{% endblock %}

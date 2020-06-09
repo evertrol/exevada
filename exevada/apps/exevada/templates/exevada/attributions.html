@@ -1,14 +1,14 @@
 {% extends 'exevada/base.html' %}
 {% block navbar_collapse_nav %}
 <ul class="navbar-nav mr-auto">
-    <li class="nav-item active">
-        <a class="nav-link" href="#">
+    <li class="nav-item">
+        <a class="nav-link" href="/exevada/events">
             Events
             <span class="sr-only">(current)</span>
         </a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" href="/exevada/attributions">
+    <li class="nav-item active">
+        <a class="nav-link" href="#">
             Attributions
             <span class="sr-only">(current)</span>
         </a>
@@ -55,24 +55,24 @@
 {% endblock %}
 {% block container %}
 <div class="pt-5">
-<h2>Extreme events</h2>
+<h2>Extreme event attributions</h2>
     <table id="evttable" class="table">
         <thead class="thead-dark">
             <tr>
               <th scope="col">event</th>
-              <th scope="col">region</th>
-              <th scope="col">start date</th>
-              <th scope="col">duration</th>
+              <th scope="col">PR</th>
+              <th scope="col">&Delta; I</th>
+              <th scope="col">return period</th>
             </tr>
         </thead>
-        {% for event in object_list %}
+        {% for attribution in object_list %}
         <tr>
-            <td>{{event.name}}</td>
-            <td>{{event.region}}</td>
-            <td>{{event.startdate|date:"d-m-Y"}}</td>
-            <td>{{event.duration}} days</td>
+            <td>{{attribution.event.name}}</td>
+            <td>{{attribution.pr}}</td>
+            <td>{{attribution.delta_I}}</td>
+            <td>{{attribution.return_period}}</td>
         </tr>
-        {% endfor %}    
+        {% endfor %}
     </table>
 </div>
 {% endblock %}

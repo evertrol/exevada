@@ -5,11 +5,10 @@ from . import views
 app_name = 'exevada'
 urlpatterns = [
     path('', views.Index.as_view(), name='index'),
-    path('event/', views.EventsView.as_view(), name='events'),
-    path('event/<int:event_id>/', views.EventView.as_view(), name='event'),
-    path('event/add/', views.CreateEvent.as_view(), name='add-event'),
-    path('region/', views.Regions.as_view(), name='regions'),
-    path('region/<int:region_id>/', views.Region.as_view(), name='region'),
-    path('region/add/', views.CreateRegion.as_view(), name='add-region'),
-
+    path('events/', views.EventsView.as_view(), name='events'),
+    path('events/<int:event_id>/', views.EventView.as_view(), name='event'),
+    path('attributions/', views.AttributionsView.as_view(), name='attributions'),
+    path('attributions/<int:attribution_id>/', views.AttributionView.as_view(), name='attribution'),
+    path('obsdata/', views.ObsDatasets.as_view(), name='observation'),
+    path('moddata/', views.ModDatasets.as_view(), name='simulation'),
 ]

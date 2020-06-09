@@ -11,6 +11,7 @@ from .forms import EventForm, RegionForm
 class Index(ListView):
     template_name = 'exevada/index.html'
     model = Event
+    allow_empty = True
 
 
 class EventsView(ListView):
@@ -25,34 +26,25 @@ class EventView(DetailView):
     context_object_name = 'event'
 
 
-class CreateEvent(CreateView):
-    template_name = 'exevada/add_event.html'
-    form_class = EventForm
+class AttributionsView(ListView):
+    template_name = 'exevada/attributions.html'
+    model = Attribution
+    context_object_name = 'attributions'
 
 
-class Regions(ListView):
-    template_name = 'exevada/regions.html'
-    model = Region
-    context_object_name = 'regions'
-
-
-class Region(DetailView):
-    template_name = 'exevada/region.html'
-    model = Region
-    context_object_name = 'region'
-
-
-class CreateRegion(CreateView):
-    template_name = 'exevada/add_region.html'
-    form_class = RegionForm
-    success_url = reverse_lazy('exevada:regions')
+class AttributionView(DetailView):
+    template_name = 'exevada/attribution.html'
+    model = Attribution
+    context_object_name = 'attribution'
 
 
 class ObsDatasets(ListView):
     template_name = 'exevada/obsdatasets.html'
     model = ObservationDataSet
+    context_object_name = 'observation_datasets'
 
 
 class ModDatasets(ListView):
     template_name = 'exevada/moddatasets.html'
-    model = ModelDataset
+    model = ModelDataSet
+    context_object_name = 'model_datasets'
