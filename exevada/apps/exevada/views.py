@@ -25,7 +25,6 @@ class EventView(DetailView):
     model = Event
     context_object_name = 'event'
 
-
 class AttributionsView(ListView):
     template_name = 'exevada/attributions.html'
     model = Attribution

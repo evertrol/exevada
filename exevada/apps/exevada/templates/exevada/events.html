@@ -67,7 +67,7 @@
         </thead>
         {% for event in object_list %}
         <tr>
-            <td>{{event.name}}</td>
+            <td><a href="{{event.pk}}">{{event.name}}</a></td>
             <td>{{event.region}}</td>
             <td>{{event.startdate|date:"d-m-Y"}}</td>
             <td>{{event.duration}} days</td>

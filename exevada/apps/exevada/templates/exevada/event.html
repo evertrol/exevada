@@ -1,5 +1,193 @@
-{% extends "exevada/base.html" %}
-{% load static %}
-{% block content %}{{ block.super }}
-<h1>Event {{ event.pk }}</h1>
-{% endblock content %}
+{% extends 'exevada/base.html' %}
+{% block navbar_collapse_nav %}
+<ul class="navbar-nav mr-auto">
+    <li class="nav-item">
+        <a class="nav-link" href="/exevada/events">
+            Events
+            <span class="sr-only">(current)</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/exevada/attributions">
+            Attributions
+            <span class="sr-only">(current)</span>
+        </a>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="dropdowndatasets" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Datasets
+        </a>
+        <div class="dropdown-menu" aria-labelledby="dropdowndatasets">
+            <a class="dropdown-item" href="/exevada/obsdata">Observation data</a>
+            <a class="dropdown-item" href="/exevada/moddata">Model simulations</a>
+        </div>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/admin">
+            Admin
+            <span class="sr-only">(current)</span>
+        </a>
+    </li>
+</ul>
+<form class="form-inline my-2 my-md-0">
+    <input class="form-control" type="text" placeholder="Search">
+</form>
+{% endblock %}
+{% block head %}
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">        
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <script src="{% static 'js/jquery.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/popper.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}" type="text/javascript"></script>
+</head>
+{% endblock %}
+{% block container %}
+<div class="pt-5">
+<h2>{{event.name}} event description</h2>
+</div>
+<div class="pt-4">
+    <dl class="row">
+        <dd class="col-sm-12 bg-light text-secondary">
+            Event definition
+        </dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3">
+            <div class="float-right">Region of occurence:</div>
+        </dt>
+        <dd class="col-sm-9">{{event.region.name}}</dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3">
+            <div class="float-right">Event time:</div>
+        </dt>
+        <dd class="col-sm-9">Starting {{event.startdate}}, lasting {{event.duration}} days (season: {{event.season}})</dd>
+    </dl>
+    <dl class="row">
+        <dd class="col-sm-12 bg-light text-secondary">
+            Impact
+        </dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3">
+            <div class="float-right">Estimated nr. of casualties:</div>
+        </dt>
+        <dd class="col-sm-9">{{event.deaths}}</dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3">
+            <div class="float-right">Estimated nr. of people affected:</div>
+        </dt>
+        <dd class="col-sm-9">{{event.people_affected}}</dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3">
+            <div class="float-right">Estimated economic loss:</div>
+        </dt>
+        <dd class="col-sm-9">{{event.economical_loss}} million dollars</dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3">
+            <div class="float-right">Ecological impact:</div>
+        </dt>
+        <dd class="col-sm-9">{{event.ecological_impact}}</dd>
+    </dl>
+    <dl class="row">
+        <dd class="col-sm-12 bg-light text-secondary">
+            Event attribution
+        </dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3">
+            <div class="float-right">Attribution request:</div>
+        </dt>
+        <dd class="col-sm-9">{{event.attribution_request}}</dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3">
+            <div class="float-right">Remarks:</div>
+        </dt>
+        <dd class="col-sm-9">{{event.comments}}</dd>
+    </dl>
+    <div id="accordion">
+        {% for attribution in event.attributions.all %}
+        <div class="card">
+          <div class="card-header" id="heading"{{ forloop.counter }}>
+            <h5 class="mb-0">
+              <button class="btn btn-link" data-toggle="collapse" data-target="#collapse"{{ forloop.counter }} aria-expanded="true" aria-controls="collapse"{{ forloop.counter }}>
+                Attribution by {{attribution.contact}}
+              </button>
+            </h5>
+          </div>
+          <div id="collapse"{{ forloop.counter }} class="collapse show" aria-labelledby="heading"{{ forloop.counter }} data-parent="#accordion">
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Statistical method:</dt>
+                    <dd class="col-sm-9">{{attribution.variable}} fitted with {{attribution.fitted_distribution}} distribution</dd>
+                </dl>
+                <h5>Analyses</h4>
+                <table id="evttable" class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">dataset</th>
+                            <th scope="col">location</th>
+                            <th scope="col">scale</th>
+                            <th scope="col">shape</th>
+                            <th scope="col">probablity ratio</th>
+                            <th scope="col">intensity change</th>
+                            <th scope="col">return period</th>
+                        </tr>
+                    </thead>
+                    <tr>
+                        <td colspan=7>observations</td>
+                    </tr>
+                    {% for analysis in attribution.analyses.ObservationAnalysiss.all %}
+                    <tr>
+                        <td>{{analysis.dataset.name}}</td>
+                        <td>{{analysis.mu}}</td>
+                        <td>{{analysis.sigma}}</td>
+                        <td>{{analysis.xi}}</td>
+                        <td>{{analysis.pr}}</td>
+                        <td>{{analysis.delta_I}}</td>
+                        <td>{{analysis.return_period}}</td>
+                    </tr>
+                    {% endfor %}    
+                    <tr>
+                        <td colspan=7>models</td>
+                    </tr>
+                    {% for analysis in attribution.analyses.ModelAnalysiss.all %}
+                    <tr>
+                        <td>{{analysis.dataset.model_name}}-{{analysis.dataset.experiment}}</td>
+                        <td>{{analysis.mu}}</td>
+                        <td>{{analysis.sigma}}</td>
+                        <td>{{analysis.xi}}</td>
+                        <td>{{analysis.pr}}</td>
+                        <td>{{analysis.delta_I}}</td>
+                        <td>{{analysis.return_period}}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan=4>synthesis</td>
+                        <td>{{attribution.pr}}</td>
+                        <td>{{attribution.delta_I}}</td>
+                        <td>{{attribution.return_period}}</td>
+                    </tr>
+                </table>
+                <dl class="row">
+                    <dt class="col-sm-3">Conclusion:</dt>
+                    <dd class="col-sm-9">{{attribution.conclusions}}</dd>
+                </dl>
+                <dl class="row">
+                    <dd class="col-sm-10">For further information, contact {{attribution.contact}} or visit <a href={{attribution.webpage}}>{{attribution.webpage}}</a></dd>
+                </dl>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
