@@ -36,4 +36,14 @@
 {% block container %}
 <div class="pt-5">
 <h2>Model simulations</h2>
+<div class="pt-5">
+    {% for dataset in object_list %}
+<p>
+    <h4>{{dataset.model_name}} {{dataset.experiment}}</h4>
+    <p><div>{{dataset.model_description}}</div></p>
+    <p><div>{{dataset.experiment_description}}</div></p>
+    <div>url: <a href={{dataset.url}}>{{dataset.url}}</a></div>
+    <div>doi: {{dataset.doi}}</div>
+</p>
+{% endfor %}
 {% endblock %}

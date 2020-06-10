@@ -37,6 +37,7 @@ class ObservationDataSet(models.Model):
 
 class ModelDataSet(models.Model):
     model_name = models.CharField(max_length=128, help_text="Model output dataset")
+    model_description = models.TextField(help_text="Model description")
     experiment = models.CharField(max_length=512, help_text="Experiment")
     experiment_description = models.TextField(help_text="Experiment description")
     url = models.URLField(max_length=512, blank=True)
