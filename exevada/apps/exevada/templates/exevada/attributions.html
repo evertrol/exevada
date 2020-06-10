@@ -60,17 +60,17 @@
         <thead class="thead-dark">
             <tr>
               <th scope="col">event</th>
+              <th scope="col">attribution</th>
               <th scope="col">probability ratio</th>
               <th scope="col">intensity change</th>
-              <th scope="col">return period</th>
             </tr>
         </thead>
         {% for attribution in object_list %}
         <tr>
             <td>{{attribution.event.name}}</td>
+            <td>{{attribution.description}}</td>
             <td>{{attribution.pr}}</td>
-            <td>{{attribution.delta_I}}</td>
-            <td>{{attribution.return_period}}</td>
+            <td>{{attribution.delta_i}}</td>
         </tr>
         {% endfor %}
     </table>

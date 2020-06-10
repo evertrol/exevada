@@ -50,11 +50,7 @@
 <h2>{{event.name}} event description</h2>
 </div>
 <div class="pt-4">
-    <dl class="row">
-        <dd class="col-sm-12 bg-light text-secondary">
-            Event definition
-        </dd>
-    </dl>
+    <h5>Event definition</h4>
     <dl class="row">
         <dt class="col-sm-3">
             <div class="float-right">Region of occurence:</div>
@@ -67,11 +63,7 @@
         </dt>
         <dd class="col-sm-9">Starting {{event.startdate}}, lasting {{event.duration}} days (season: {{event.season}})</dd>
     </dl>
-    <dl class="row">
-        <dd class="col-sm-12 bg-light text-secondary">
-            Impact
-        </dd>
-    </dl>
+    <h5>Impact</h4>
     <dl class="row">
         <dt class="col-sm-3">
             <div class="float-right">Estimated nr. of casualties:</div>
@@ -96,11 +88,7 @@
         </dt>
         <dd class="col-sm-9">{{event.ecological_impact}}</dd>
     </dl>
-    <dl class="row">
-        <dd class="col-sm-12 bg-light text-secondary">
-            Event attribution
-        </dd>
-    </dl>
+    <h5>Attribution studies</h4>
     <dl class="row">
         <dt class="col-sm-3">
             <div class="float-right">Attribution request:</div>
@@ -119,68 +107,79 @@
           <div class="card-header" id="heading"{{ forloop.counter }}>
             <h5 class="mb-0">
               <button class="btn btn-link" data-toggle="collapse" data-target="#collapse"{{ forloop.counter }} aria-expanded="true" aria-controls="collapse"{{ forloop.counter }}>
-                Attribution by {{attribution.contact}}
+                {{attribution.description}}
               </button>
             </h5>
           </div>
           <div id="collapse"{{ forloop.counter }} class="collapse show" aria-labelledby="heading"{{ forloop.counter }} data-parent="#accordion">
             <div class="card-body">
-                <dl class="row">
-                    <dt class="col-sm-3">Statistical method:</dt>
-                    <dd class="col-sm-9">{{attribution.variable}} fitted with {{attribution.fitted_distribution}} distribution</dd>
-                </dl>
-                <h5>Analyses</h4>
-                <table id="evttable" class="table table-striped">
+                <h5>Analysis</h4>
+                    <dl class="row">
+                        <dt class="col-sm-3">Statistical method:</dt>
+                        <dd class="col-sm-9">{{attribution.variable}} fitted with {{attribution.fitted_distribution}} distribution</dd>
+                    </dl>
+                    <table id="evttable" class="table table-striped">
                     <thead class="thead-dark">
                         <tr>
                             <th scope="col">dataset</th>
-                            <th scope="col">location</th>
-                            <th scope="col">scale</th>
-                            <th scope="col">shape</th>
-                            <th scope="col">probablity ratio</th>
-                            <th scope="col">intensity change</th>
+                            <th scope="col">value</th>
+                            <th scope="col">trend</th>
+                            <th scope="col">&mu;</th>
+                            <th scope="col">&sigma;</th>
+                            <th scope="col">&xi;</th>
+                            <th scope="col">PR</th>
+                            <th scope="col">&Delta;I</th>
                             <th scope="col">return period</th>
                         </tr>
                     </thead>
                     <tr>
-                        <td colspan=7>observations</td>
+                        <td colspan=9 align="center" style="color:gray; font-weight: bold;">observations</td>
                     </tr>
-                    {% for analysis in attribution.analyses.ObservationAnalysiss.all %}
+                    {% for analysis in attribution.observationanalysiss.all %}
                     <tr>
                         <td>{{analysis.dataset.name}}</td>
+                        <td>{{analysis.value}}</td>
+                        <td>-</td>
                         <td>{{analysis.mu}}</td>
                         <td>{{analysis.sigma}}</td>
                         <td>{{analysis.xi}}</td>
                         <td>{{analysis.pr}}</td>
                         <td>{{analysis.delta_I}}</td>
-                        <td>{{analysis.return_period}}</td>
+                        <td>{{analysis.return_period}} yr</td>
                     </tr>
                     {% endfor %}    
                     <tr>
-                        <td colspan=7>models</td>
+                        <td colspan=9 align="center" style="color:gray; font-weight: bold;">model evaluation</td>
                     </tr>
-                    {% for analysis in attribution.analyses.ModelAnalysiss.all %}
+                    {% for analysis in attribution.modelanalysiss.all %}
                     <tr>
-                        <td>{{analysis.dataset.model_name}}-{{analysis.dataset.experiment}}</td>
+                        <td>{{analysis.dataset.model_name}} {{analysis.dataset.experiment}}</td>
+                        <td>-</td>
+                        <td>{{analysis.trend}}</td>
                         <td>{{analysis.mu}}</td>
                         <td>{{analysis.sigma}}</td>
                         <td>{{analysis.xi}}</td>
                         <td>{{analysis.pr}}</td>
                         <td>{{analysis.delta_I}}</td>
-                        <td>{{analysis.return_period}}</td>
+                        <td>{{analysis.return_period}} yr</td>
                     </tr>
                     {% endfor %}
                     <tr>
-                        <td colspan=4>synthesis</td>
+                        <td colspan=9 align="center" style="color:gray; font-weight: bold;">synthesis</td>
+                    </tr>
+                    <tr>
+                        <td colspan=6></td>
                         <td>{{attribution.pr}}</td>
-                        <td>{{attribution.delta_I}}</td>
-                        <td>{{attribution.return_period}}</td>
+                        <td>{{attribution.delta_i}}</td>
+                        <td colspan=1></td>
                     </tr>
                 </table>
-                <dl class="row">
-                    <dt class="col-sm-3">Conclusion:</dt>
-                    <dd class="col-sm-9">{{attribution.conclusions}}</dd>
-                </dl>
+                <h5 >Conclusion</h4>
+                    <p>{{attribution.conclusions}}</p>
+                <h5>Publications</h4>
+                    {% for paper in attribution.journalpapers.all %}
+                    <p>{{paper.title}} by {{paper.authors}} in {{paper.journal}} ({{paper.date}}), doi:{{paper.doi}}, url:{{paper.url}}</p>
+                    {% endfor %}
                 <dl class="row">
                     <dd class="col-sm-10">For further information, contact {{attribution.contact}} or visit <a href={{attribution.webpage}}>{{attribution.webpage}}</a></dd>
                 </dl>

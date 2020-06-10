@@ -28,19 +28,21 @@ class AnalysisMixin(models.Model):
 
 class ObservationDataSet(models.Model):
     name = models.CharField(max_length=256, help_text="Observation dataset")
-    url = models.URLField(max_length=512, unique=True, default="none")
+    url = models.URLField(max_length=512, blank=True)
+    description = models.TextField(help_text="Dataset description")
     doi = models.CharField(max_length=256, help_text="DOI of dataset", unique=True, default="none")
     def __str__(self):
         return self.name
 
 
 class ModelDataSet(models.Model):
-    model_name = models.CharField(max_length=256, help_text="Model output dataset")
-    experiment = models.TextField(help_text="Experiment description")
-    url = models.URLField(max_length=512, unique=True, default="none")
+    model_name = models.CharField(max_length=128, help_text="Model output dataset")
+    experiment = models.CharField(max_length=512, help_text="Experiment")
+    experiment_description = models.TextField(help_text="Experiment description")
+    url = models.URLField(max_length=512, blank=True)
     doi = models.CharField(max_length=256, help_text="DOI of dataset", unique=True, default="none")
     def __str__(self):
-        return '_'.join([self.model_name, self.experiment])
+        return ' '.join([self.model_name, self.experiment])
 
 
 class Event(models.Model):
@@ -81,15 +83,16 @@ class Attribution(models.Model):
         Gumbel = "Gumbel", _("Gumbel")
         Gamma = "Gamma", _("gamma")
     event = models.ForeignKey("Event", on_delete=models.CASCADE, related_name="attributions")
+    description = models.CharField(max_length=256, help_text="Short descriptive string")
     variable = models.CharField(max_length=16, choices=MeteoVariable.choices, help_text="Event variable", default=MeteoVariable.Tmax)
     fitted_distribution = models.CharField(max_length=64, choices=DistributionType.choices, help_text="Fitted distribution", default=DistributionType.GEV)
     pr = models.FloatField(help_text="Synthesis probability ratio", validators=[MinValueValidator(0.0)], default=0.0)
     delta_i = models.FloatField(help_text="Synthesis change in intensity", default=0.0)
     conclusions = models.TextField(help_text="Synthesis conclusions", default="none")
     contact = models.CharField(max_length=1024, help_text="Contact email adress", default="none")
-    webpage = models.URLField(max_length=512, help_text="Relevant web page", default="https://attribution.climate.copernicus.eu")
+    webpage = models.URLField(max_length=512, help_text="Relevant web page", blank=True, default="https://attribution.climate.copernicus.eu")
     def __str__(self):
-        return '_'.join([str(self.event), self.contact])
+        return ' '.join([str(self.event), self.description])
 
 
 class Publication(models.Model):
@@ -98,7 +101,7 @@ class Publication(models.Model):
     doi = models.CharField(max_length=256, help_text="DOI (no URL) of related publication", unique=True, default="none")
     authors = models.CharField(max_length=1024, help_text="Author list", default="")
     date = models.DateField(help_text="Publication date")
-    url = models.URLField(max_length=512, unique=True)
+    url = models.URLField(max_length=512, blank=True)
     def __str__(self):
         return self.title
     class Meta:
@@ -117,7 +120,7 @@ class ObservationAnalysis(AnalysisMixin):
     dataset = models.ForeignKey("ObservationDataSet", on_delete=models.CASCADE)
     value = models.FloatField(help_text="Variable value for this observation dataset", default=0.0)
     def __str__(self):
-        return '_'.join([str(super(self).attribution), str(self.dataset)])
+        return '-'.join([str(super(self).attribution), str(self.dataset)])
     class Meta:
         verbose_name_plural = "observation analyses"
 
@@ -126,6 +129,6 @@ class ModelAnalysis(AnalysisMixin):
     dataset = models.ForeignKey("ModelDataSet", on_delete=models.CASCADE)
     trend = models.FloatField(help_text="Trend", default=0.0)
     def __str__(self):
-        return '_'.join([str(super(self).attribution), str(self.dataset)])
+        return '-'.join([str(super(self).attribution), str(self.dataset)])
     class Meta:
         verbose_name_plural = "model analyses"
