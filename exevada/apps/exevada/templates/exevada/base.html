@@ -9,11 +9,16 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    
+        <style>
+            .responsive {
+              width: 100%;
+              height: auto;
+            }
+        </style>         
         {% block title %}{% endblock %}
 
-        <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">        
-        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+        <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}" type="text/css">        
+        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" type="text/css">
         {% block extra_css %}{% endblock %}
     </head>
     {% endblock %}
@@ -57,26 +62,22 @@
             </div>
         {% endblock %}
 
-        {% block foot %}
+            {% block foot %}
             <!-- Footer -->
             <footer class="static-bottom">
 
             <!-- Copyright -->
                 <div class="footer-copyright text-center py-3">© 2020 Copyright:
-                <a href="https://climate.copernicus.eu/"> climate.copernicus.eu </a>
+                    <a href="https://climate.copernicus.eu/"> climate.copernicus.eu </a>
+                    {% load static %}
+                    <img src="{% static 'img/C3S-logo.jpg' %}" class="img-responsive" width="50" height="50">
+                </div>
                 </div>
             <!-- Copyright -->
-
             </footer>
             <!-- Footer -->
                 {% block footer %}{% endblock %}
         {% endblock %}
-
-        <script src="{% static 'js/jquery.min.js' %}"></script>
-        <script src="{% static 'js/popper.min.js' %}"></script>
-        <script src="{% static 'js/bootstrap.min.js' %}"></script>
-        <script src="{% static 'js/js.cookie.js' %}"></script>
-        <script src="{% static 'js/csrf.js' %}"></script>
         {% block extra_js %}{% endblock %}
 
     </body>
