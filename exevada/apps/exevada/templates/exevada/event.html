@@ -103,7 +103,7 @@
     </dl>
     <div id="accordion">
         {% for attribution in event.attributions.all %}
-        <div class="card">
+        <div class="card" id="{{attribution.description}}">
           <div class="card-header" id="heading"{{ forloop.counter }}>
             <h5 class="mb-0">
               <button class="btn btn-link" data-toggle="collapse" data-target="#collapse"{{ forloop.counter }} aria-expanded="true" aria-controls="collapse"{{ forloop.counter }}>
@@ -137,7 +137,7 @@
                     </tr>
                     {% for analysis in attribution.observationanalysiss.all %}
                     <tr>
-                        <td>{{analysis.dataset.name}}</td>
+                        <td><a href=/exevada/obsdata/#{{analysis.dataset.name}}">{{analysis.dataset.name}}</a></td>
                         <td>{{analysis.value}}</td>
                         <td>-</td>
                         <td>{{analysis.mu}}</td>
@@ -153,7 +153,7 @@
                     </tr>
                     {% for analysis in attribution.modelanalysiss.all %}
                     <tr>
-                        <td>{{analysis.dataset.model_name}} {{analysis.dataset.experiment}}</td>
+                        <td><a href=/exevada/moddata#{{analysis.dataset.model_name}}{{analysis.dataset.experiment}}">{{analysis.dataset.model_name}} {{analysis.dataset.experiment}}</a></td>
                         <td>-</td>
                         <td>{{analysis.trend}}</td>
                         <td>{{analysis.mu}}</td>

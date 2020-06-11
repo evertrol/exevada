@@ -39,7 +39,7 @@
 <div class="pt-5">
     {% for dataset in object_list %}
 <p>
-    <h4>{{dataset.name}}</h4>
+    <h4 id="{{dataset.name}}">{{dataset.name}}</h4>
     <div>{{dataset.description}}</div>
     <div>url: <a href={{dataset.url}}>{{dataset.url}}</a></div>
     <div>doi: {{dataset.doi}}</div>

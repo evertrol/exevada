@@ -68,7 +68,7 @@
         {% for attribution in object_list %}
         <tr>
             <td>{{attribution.event.name}}</td>
-            <td>{{attribution.description}}</td>
+            <td><a href="/exevada/events/{{attribution.event.pk}}#{{attribution.description}}">{{attribution.description}}</a></td>
             <td>{{attribution.pr}}</td>
             <td>{{attribution.delta_i}}</td>
         </tr>
