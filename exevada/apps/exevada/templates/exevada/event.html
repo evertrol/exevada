@@ -49,58 +49,66 @@
 <div class="pt-5">
 <h2>{{event.name}} event description</h2>
 </div>
-<div class="pt-4">
-    <h5>Event definition</h4>
+<div class="pt-5">
     <dl class="row">
-        <dt class="col-sm-3">
-            <div class="float-right">Region of occurence:</div>
-        </dt>
-        <dd class="col-sm-9">{{event.region.name}}</dd>
-    </dl>
-    <dl class="row">
-        <dt class="col-sm-3">
-            <div class="float-right">Event time:</div>
-        </dt>
-        <dd class="col-sm-9">Starting {{event.startdate}}, lasting {{event.duration}} days (season: {{event.season}})</dd>
-    </dl>
-    <h5>Impact</h4>
-    <dl class="row">
-        <dt class="col-sm-3">
-            <div class="float-right">Estimated nr. of casualties:</div>
-        </dt>
-        <dd class="col-sm-9">{{event.deaths}}</dd>
-    </dl>
-    <dl class="row">
-        <dt class="col-sm-3">
-            <div class="float-right">Estimated nr. of people affected:</div>
-        </dt>
-        <dd class="col-sm-9">{{event.people_affected}}</dd>
-    </dl>
-    <dl class="row">
-        <dt class="col-sm-3">
-            <div class="float-right">Estimated economic loss:</div>
-        </dt>
-        <dd class="col-sm-9">{{event.economical_loss}} million dollars</dd>
-    </dl>
-    <dl class="row">
-        <dt class="col-sm-3">
-            <div class="float-right">Ecological impact:</div>
-        </dt>
-        <dd class="col-sm-9">{{event.ecological_impact}}</dd>
+        <div class="col-sm-7">
+            <div class="alert alert-secondary" role="alert">                
+                <h5>Event definition</h4>
+                    <dl class="row">
+                    <dt class="col-sm-4">
+                        <div class="float-right">Region of occurence:</div>
+                    </dt>
+                    <dd class="col-sm-8">{{event.region.name}}</dd>
+                </dl>
+                <dl class="row">
+                    <dt class="col-sm-4">
+                        <div class="float-right">Event time:</div>
+                    </dt>
+                    <dd class="col-sm-8">Starting {{event.startdate}}, lasting {{event.duration}} days (season: {{event.season}})</dd>        
+                </dl>
+                <dl class="row">
+                    <dt class="col-sm-4">
+                        <div class="float-right">Remarks:</div>
+                    </dt>
+                    <dd class="col-sm-8">{{event.comments}}</dd>
+                </dl>
+            </div>
+            <div class="alert alert-secondary" role="alert">                
+                <h5>Impact</h4>
+                <dl class="row">
+                    <dt class="col-sm-4">
+                        <div class="float-right">Nr. of casualties:</div>
+                    </dt>
+                    <dd class="col-sm-8">{{event.deaths}}</dd>
+                </dl>
+                <dl class="row">
+                    <dt class="col-sm-4">
+                        <div class="float-right">Nr. of people affected:</div>
+                    </dt>
+                    <dd class="col-sm-8">{{event.people_affected}}</dd>
+                </dl>
+                <dl class="row">
+                    <dt class="col-sm-4">
+                        <div class="float-right">Economic loss:</div>
+                    </dt>
+                    <dd class="col-sm-8">{{event.economical_loss}} million dollars</dd>
+                </dl>
+                <dl class="row">
+                    <dt class="col-sm-4">
+                        <div class="float-right">Ecological impact:</div>
+                    </dt>
+                    <dd class="col-sm-8">{{event.ecological_impact}}</dd>
+                </dl>            
+            </div>
+        </div>
+        <div class="col-sm-5" style="margin: 0px;">
+            <iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.openstreetmap.org/export/embed.html?bbox=38.3203125%2C-69.59589006237648%2C202.32421875000003%2C21.94304553343818&amp;layer=mapnik" style="border: 0px">
+            </iframe>
+            <br/>
+            <small><a href="https://www.openstreetmap.org/#map=3/-35.39/120.32">View Larger Map</a></small>        
+        </div>
     </dl>
     <h5>Attribution studies</h4>
-    <dl class="row">
-        <dt class="col-sm-3">
-            <div class="float-right">Attribution request:</div>
-        </dt>
-        <dd class="col-sm-9">{{event.attribution_request}}</dd>
-    </dl>
-    <dl class="row">
-        <dt class="col-sm-3">
-            <div class="float-right">Remarks:</div>
-        </dt>
-        <dd class="col-sm-9">{{event.comments}}</dd>
-    </dl>
     <div id="accordion">
         {% for attribution in event.attributions.all %}
         <div class="card" id="{{attribution.description}}">
