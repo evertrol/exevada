@@ -4,7 +4,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
-from .models import Event, Attribution, ObservationDataSet, ModelDataSet
+from .models import Event, Attribution, ObservationDataSet, ModelDataSet, Location
 
 
 class Index(ListView):

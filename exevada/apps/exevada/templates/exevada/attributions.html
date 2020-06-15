@@ -62,15 +62,15 @@
               <th scope="col">event</th>
               <th scope="col">attribution</th>
               <th scope="col">probability ratio</th>
-              <th scope="col">intensity change</th>
+              <th scope="col">intensity change [%]</th>
             </tr>
         </thead>
         {% for attribution in object_list %}
         <tr>
             <td>{{attribution.event.name}}</td>
             <td><a href="/exevada/events/{{attribution.event.pk}}#{{attribution.description}}">{{attribution.description}}</a></td>
-            <td>{{attribution.pr}}</td>
-            <td>{{attribution.delta_i}}</td>
+            <td>{{attribution.PR}}<sub>({{attribution.PR_min}}-{{attribution.PR_max}})</sup></td>
+            <td>{{attribution.Delta_I}}<sub>({{attribution.Delta_I_min}}-{{attribution.Delta_I_max}})</sup></td>
         </tr>
         {% endfor %}
     </table>

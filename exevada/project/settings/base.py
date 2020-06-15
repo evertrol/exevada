@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'nested_inline',
     'django_bootstrap_base_template',
+    'leaflet',
     'apps.exevada',
 ]
 

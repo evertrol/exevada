@@ -1,0 +1,99 @@
+[
+    {
+        "model": "exevada.eventtype",
+        "pk": 1,
+        "fields": {
+            "name": "heat wave",
+            "description": "period of excessively high temperature"
+        }
+    },
+    {
+        "model": "exevada.eventtype",
+        "pk": 2,
+        "fields": {
+            "name": "cold wave",
+            "description": "period of excessively low temperature"
+        }
+    },
+    {
+        "model": "exevada.eventtype",
+        "pk": 3,
+        "fields": {
+          "name": "flood",
+          "description": "High precipitation event"
+        }
+    },
+    {
+        "model": "exevada.eventtype",
+        "pk": 4,
+        "fields": {
+          "name": "draught",
+          "description": "Period of low precipitation"
+        }
+    },
+    {
+        "model": "exevada.distributiontype",
+        "pk": 1,
+        "fields": {
+          "name": "Gauss",
+          "abbreviation": "Gauss",
+          "has_shape_parameter": "False"
+        }
+    },
+    {
+        "model": "exevada.distributiontype",
+        "pk": 2,
+        "fields": {
+          "name": "Generalized Pareto",
+          "abbreviation": "GPD",
+          "has_shape_parameter": "True"
+        }
+    },
+    {
+        "model": "exevada.distributiontype",
+        "pk": 3,
+        "fields": {
+          "name": "Generalized Extreme Value",
+          "abbreviation": "GEV",
+          "has_shape_parameter": "True"
+        }
+    },
+    {
+        "model": "exevada.distributiontype",
+        "pk": 4,
+        "fields": {
+          "name": "Gumbel",
+          "abbreviation": "Gumbel",
+          "has_shape_parameter": "False"
+        }
+    },
+    {
+        "model": "exevada.distributiontype",
+        "pk": 5,
+        "fields": {
+          "name": "Gamma",
+          "abbreviation": "Gamma",
+          "has_shape_parameter": "False"
+        }
+    },
+    {
+        "model": "exevada.statisticalmethod",
+        "pk": 1,
+        "fields": {
+          "name": "shift",
+          "description": "To be used in combination with temperature extremes. We usually assume that the scale parameter σ and shape parameter ξ are constant, thus the PDF is shifted up or down with GMST but does not change shape. In this way, it results in a distribution that varies continuously with GMST. This distribution can be evaluated for a GMST in the past (e.g., 1900) and for the current GMST. A 1000-member non-parametric bootstrap procedure is used to estimate confidence intervals for the fit.",
+          "covariate": "GMST",
+          "dispersion_fit": "False"
+        }
+    },
+    {
+        "model": "exevada.statisticalmethod",
+        "pk": 2,
+        "fields": {
+          "name": "scale-shift",
+          "description": "To be used in combination with precipitation extremes. We assume that the scale parameter σ scales with the position parameter μ such that the ratio σ/μ (the dispersion parameter) is constant. Thus the PDF is scaled up or down with GMST. The dependence of the position and scale parameters on GMST is also chosen to be exponential rather than linear to reflect the shape of the Clausius-Clapeyron relationship that is often a large factor in the increase in extreme precipitation",
+          "covariate": "GMST",
+          "dispersion_fit": "True"
+        }
+    }
+]

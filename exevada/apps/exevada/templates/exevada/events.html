@@ -60,6 +60,7 @@
         <thead class="thead-dark">
             <tr>
               <th scope="col">event</th>
+              <th scope="col">type</th>
               <th scope="col">region</th>
               <th scope="col">start date</th>
               <th scope="col">duration</th>
@@ -68,8 +69,9 @@
         {% for event in object_list %}
         <tr>
             <td><a href="{{event.pk}}">{{event.name}}</a></td>
+            <td>{{event.event_type}}</td>
             <td>{{event.region}}</td>
-            <td>{{event.startdate|date:"d-m-Y"}}</td>
+            <td>{{event.start_date|date:"d-m-Y"}}</td>
             <td>{{event.duration}} days</td>
         </tr>
         {% endfor %}    
