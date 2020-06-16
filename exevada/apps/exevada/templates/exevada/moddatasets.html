@@ -36,14 +36,27 @@
 {% block container %}
 <div class="pt-5">
 <h2>Model simulations</h2>
-<div class="pt-5">
     {% for dataset in object_list %}
-<p>
-    <h4 id="{{dataset.model_name}}{{dataset.experiment}}">{{dataset.model_name}} {{dataset.experiment}}</h4>
-    <p><div>{{dataset.model_description}}</div></p>
-    <p><div>{{dataset.experiment_description}}</div></p>
-    <div>url: <a href={{dataset.url}}>{{dataset.url}}</a></div>
-    <div>doi: {{dataset.doi}}</div>
-</p>
+    <div class="pt-5">
+    <p>
+        <h4 id="{{dataset.model_name}}{{dataset.experiment}}">{{dataset.model_name}} {{dataset.experiment}}</h4>
+        <p><div>{{dataset.model_description}}</div></p>
+        <p><div>{{dataset.experiment_description}}</div></p>
+        {% if dataset.url and dataset.url.strip %}
+            <div>url: <a href={{dataset.url}}>{{dataset.url}}</a></div>
+        {% endif %}
+        {% if dataset.doi and dataset.doi.strip %}
+            <div>doi: {{dataset.doi}}</div>
+        {% endif %}
+        <p>
+        <div>
+            <h5>References</h5>
+            {% for paper in dataset.papers.all %}
+                <p>{{paper.authors}}, {{paper.title}}, {{paper.journal}}, {{paper.issue}} ({{paper.date}})</p>
+            {% endfor %}
+        </div>
+        </p>
+    </p>
+    </div>
 {% endfor %}
 {% endblock %}
