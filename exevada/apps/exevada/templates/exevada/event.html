@@ -244,7 +244,7 @@
                 </table>
                 <h5>Conclusion</h4>
                     <p>{{attribution.conclusions}}</p>
-                {% if attribution.journalpapers.any %}
+                {% if attribution.journalpapers.ll %}
                 <h5>Publications</h4>
                     {% for paper in attribution.journalpapers.all %}
                         <p>
@@ -258,7 +258,7 @@
                         </p>
                     {% endfor %}
                 {% endif %}
-                {% if attribution.press_releases.any %}
+                {% if attribution.press_releases.all %}
                 <h5>Press releases</h4>
                     {% for press_release in attribution.press_releases.all %}
                         <p>

@@ -49,20 +49,22 @@
             <div>doi: {{dataset.doi}}</div>
         {% endif %}
         <p>
-        <div>
-            <h5>References</h5>
-            {% for paper in dataset.papers.all %}
-                <p>
-                    {{paper.authors}}, {{paper.title}}, {{paper.journal}}, {{paper.issue}} ({{paper.date|date:"M Y"}})
-                    {% if paper.url and paper.url.strip %}
-                        , <a href={{paper.url}}>{{paper.url}}</a>
-                    {% endif %}
-                    {% if paper.doi and paper.doi.strip %}
-                        , doi:{{paper.doi}}
-                    {% endif %}
-                </p>
-            {% endfor %}
-        </div>
+            <div>
+                {% if dataset.papers.all %}
+                    <h5>References</h5>
+                    {% for paper in dataset.papers.all %}
+                        <p>
+                            {{paper.authors}}, {{paper.title}}, {{paper.journal}}, {{paper.issue}} ({{paper.date|date:"M Y"}})
+                            {% if paper.url and paper.url.strip %}
+                                , <a href={{paper.url}}>{{paper.url}}</a>
+                            {% endif %}
+                            {% if paper.doi and paper.doi.strip %}
+                                , doi:{{paper.doi}}
+                            {% endif %}
+                        </p>
+                    {% endfor %}
+                {% endif %}
+            </div>
         </p>
     </p>
     </div>
