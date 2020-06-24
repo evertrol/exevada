@@ -41,6 +41,7 @@ class AttributionVariable(models.Model):
     description = models.TextField(help_text="Description", blank=True)
     unit = models.CharField(max_length=64, help_text="Unit of the variable", blank=True)
     unit_symbol = models.CharField(max_length=16, help_text="Unit symbol of the variable", blank=True)
+    delta_I_unit_symbol = models.CharField(max_length=16, help_text="Unit symbol of intensity change", blank=True)
     def __str__(self):
         return self.short_name
 

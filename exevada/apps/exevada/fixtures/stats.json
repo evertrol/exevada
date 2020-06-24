@@ -19,7 +19,7 @@
         "model": "exevada.eventtype",
         "pk": 3,
         "fields": {
-          "name": "flood",
+          "name": "heavy precipitation",
           "description": "High precipitation event"
         }
     },
@@ -27,7 +27,7 @@
         "model": "exevada.eventtype",
         "pk": 4,
         "fields": {
-          "name": "draught",
+          "name": "drought",
           "description": "Period of low precipitation"
         }
     },

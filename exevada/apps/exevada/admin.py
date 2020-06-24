@@ -32,7 +32,7 @@ class StatisticalMethod(admin.ModelAdmin):
 
 @admin.register(models.AttributionVariable)
 class AttributionVariable(admin.ModelAdmin):
-    fields = (('short_name', 'long_name'), ('unit', 'unit_symbol'), 'description') 
+    fields = (('short_name', 'long_name'), ('unit', 'unit_symbol', 'delta_I_unit_symbol'), 'description') 
 
 @admin.register(models.ObservationDataSet)
 class ObservationDataSet(admin.ModelAdmin):

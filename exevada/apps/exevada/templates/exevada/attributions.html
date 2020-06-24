@@ -1,4 +1,5 @@
 {% extends 'exevada/base.html' %}
+{% load CL_display %}
 {% block navbar_collapse_nav %}
 <ul class="navbar-nav mr-auto">
     <li class="nav-item">
@@ -51,6 +52,11 @@
             $('#evttable').DataTable();
              });
     </script>
+    <style>
+        .supsub {position: absolute}
+        .subscript {display:block; position:relative; left:2px; top: 17px; font-size: 60%;}
+        .superscript {display:block; position:relative; left:2px; top: 5px; font-size: 60%;}
+    </style>
 </head>
 {% endblock %}
 {% block container %}
@@ -60,18 +66,20 @@
         <thead class="thead-dark">
             <tr>
               <th scope="col">event</th>
-              <th scope="col">attribution</th>
+              <th scope="col">attribution study</th>
               <th scope="col">probability ratio</th>
-              <th scope="col">intensity change [%]</th>
+              <th scope="col">intensity change</th>
+              <th scope="col">return period [yr]</th>
             </tr>
         </thead>
         {% for attribution in object_list %}
         <tr>
             <td>{{attribution.event.name}}</td>
             <td><a href="/exevada/events/{{attribution.event.pk}}#{{attribution.description}}">{{attribution.description}}</a></td>
-            <td>{{attribution.PR}}<sub>({{attribution.PR_min}}-{{attribution.PR_max}})</sup></td>
-            <td>{{attribution.Delta_I}}<sub>({{attribution.Delta_I_min}}-{{attribution.Delta_I_max}})</sup></td>
-        </tr>
+            <td>{{attribution.PR}}<span class='supsub'><sup class='superscript'>{{attribution.PR_max|upper_bnd}}</sup><sub class='subscript'>{{attribution.PR_min|lower_bnd}}</sub></span></td>
+            <td><span style='margin-right:1.3em; display:inline-block;'>{{attribution.Delta_I}}<span class='supsub'><sup class='superscript'>{{attribution.Delta_I_max|upper_bnd}}</sup><sub class='subscript'>{{attribution.Delta_I_min|lower_bnd}}</sub></span><span></span></span>{{attribution.variable.delta_I_unit_symbol}}</td>
+            <td>{{attribution.return_period}}</td>
+</tr>
         {% endfor %}
     </table>
 </div>
