@@ -60,14 +60,14 @@
 </div>
 <div class="pt-5">
     <dl class="row">
-        <div class="col-sm-7">
+        <div class="col-sm-6">
             <div class="alert alert-secondary" role="alert">                
                 <h5>Event definition</h4>
                     <dl class="row">
                     <dt class="col-sm-4">
-                        <div class="float-right">Region of occurence:</div>
+                        <div class="float-right">Region:</div>
                     </dt>
-                    <dd class="col-sm-8">{{event.region.name}}</dd>
+                    <dd class="col-sm-8">{{event.region}}</dd>
                 </dl>
                 <dl class="row">
                     <dt class="col-sm-4">
@@ -82,17 +82,19 @@
                     <dd class="col-sm-8">{{event.comments}}</dd>
                 </dl>
             </div>
+        </div>
+        <div class="col-sm-6">
             <div class="alert alert-secondary" role="alert">                
                 <h5>Impact</h4>
                 <dl class="row">
                     <dt class="col-sm-4">
-                        <div class="float-right">Nr. of casualties:</div>
+                        <div class="float-right">Casualties:</div>
                     </dt>
                     <dd class="col-sm-8">{{event.deaths}}</dd>
                 </dl>
                 <dl class="row">
                     <dt class="col-sm-4">
-                        <div class="float-right">Nr. of people affected:</div>
+                        <div class="float-right">People affected:</div>
                     </dt>
                     <dd class="col-sm-8">{{event.people_affected}}</dd>
                 </dl>
@@ -110,13 +112,16 @@
                 </dl>            
             </div>
         </div>
-        <div class="col-sm-5" style="margin: 0px;">
-            <iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.openstreetmap.org/export/embed.html?bbox=38.3203125%2C-69.59589006237648%2C202.32421875000003%2C21.94304553343818&amp;layer=mapnik" style="border: 0px">
-            </iframe>
-            <br/>
-            <small><a href="https://www.openstreetmap.org/#map=3/-35.39/120.32">View Larger Map</a></small>        
-        </div>
     </dl>
+    <div class="container-fluid px-0">
+        <dl class="row">
+            <div class="col-md-12">
+                <img src="{% static '/img/Drought_Denmark_2018.png' %}" width="100%" class="img-responsive" alt='drought_sat'>
+            <br/>
+            <small>Image caption not provided</small>        
+            </div>
+        </dl>    
+    </div>
     <h5>Attribution studies</h4>
     <div id="accordion">
         {% for attribution in event.attributions.all %}
@@ -237,12 +242,36 @@
                         <td>{{attribution.return_period}}</td>
                     </tr>
                 </table>
-                <h5 >Conclusion</h4>
+                <h5>Conclusion</h4>
                     <p>{{attribution.conclusions}}</p>
+                {% if attribution.journalpapers.any %}
                 <h5>Publications</h4>
                     {% for paper in attribution.journalpapers.all %}
-                    <p>{{paper.title}} by {{paper.authors}} in {{paper.journal}} ({{paper.date}}), doi:{{paper.doi}}, url:{{paper.url}}</p>
+                        <p>
+                            {{paper.authors}}, {{paper.title}}, {{paper.journal}}, {{paper.issue}} ({{paper.date|date:"M Y"}})
+                            {% if paper.url and paper.url.strip %}
+                                , <a href={{paper.url}}>{{paper.url}}</a>
+                            {% endif %}
+                            {% if paper.doi and paper.doi.strip %}
+                                , doi:{{paper.doi}}
+                            {% endif %}
+                        </p>
                     {% endfor %}
+                {% endif %}
+                {% if attribution.press_releases.any %}
+                <h5>Press releases</h4>
+                    {% for press_release in attribution.press_releases.all %}
+                        <p>
+                            {{press_release.authors}}, {{press_release.title}}, {{press_release.medium}} ({{press_release.date|date:"M Y"}})
+                            {% if press_release.url and press_release.url.strip %}
+                                , <a href={{press_release.url}}>{{press_release.url}}</a>
+                            {% endif %}
+                            {% if press_release.doi and press_release.doi.strip %}
+                                , doi:{{press_release.doi}}
+                            {% endif %}
+                        </p>
+                    {% endfor %}
+                {% endif %}
                 <dl class="row">
                     <dd class="col-sm-10">For further information, contact {{attribution.contact}} or visit <a href={{attribution.webpage}}>{{attribution.webpage}}</a></dd>
                 </dl>

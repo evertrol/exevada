@@ -104,3 +104,5 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_ROOT = '/home/gvdoord/Software/exevada/exevada/media'
+MEDIA_URL = '/media/'

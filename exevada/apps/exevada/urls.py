@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
-
+from django.conf import settings
+from django.conf.urls.static import static
 
 app_name = 'exevada'
 urlpatterns = [
@@ -12,3 +13,4 @@ urlpatterns = [
     path('obsdata/', views.ObsDatasets.as_view(), name='observation'),
     path('moddata/', views.ModDatasets.as_view(), name='simulation'),
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

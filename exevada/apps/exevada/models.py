@@ -181,5 +181,6 @@ class Event(models.Model):
     economical_loss = models.DecimalField(max_digits=12, decimal_places=2, help_text="Estimated economic loss in Keuro", default=0)
     ecological_impact = models.TextField(help_text="Ecological impact", blank=True)
     comments = models.TextField(help_text="Remarks", blank=True)
+    image = models.ImageField(upload_to='event_artwork')
     def __str__(self):
         return self.name

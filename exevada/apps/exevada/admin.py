@@ -84,7 +84,7 @@ class AttributionInline(NestedStackedInline):
 
 @admin.register(models.Event)
 class Event(NestedModelAdmin):
-    fieldsets = ( (None, {'fields': ('name', 'event_type')}), 
+    fieldsets = ( (None, {'fields': ('name', 'event_type', 'image')}), 
                 ('Event Definition', {'fields' : ('region', ('start_date', 'duration', 'season'))}),
                 ('Impact', {'fields' : (('deaths', 'people_affected'), 'economical_loss', 'ecological_impact')}),
                 (None, {'fields': ['comments']} ))
