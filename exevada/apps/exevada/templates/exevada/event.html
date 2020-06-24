@@ -186,10 +186,9 @@
                     <table id="evttable" class="table table-bordered">
                     <thead class="thead-dark">
                         <tr>
-                            <th scope="col" style="width: 10%">dataset</th>
-                            <th scope="col" style="width: 10%"></th>
-                            <th scope="col" style="width: 7%">timespan</th>
-                            <th scope="col">trend</th>
+                            <th scope="col" style="width: 20%">dataset</th>
+                            <th scope="col"></th>
+                            <th scope="col">timespan</th>
                             <th scope="col">&sigma;</th>
                             <th scope="col">&xi;</th>
                             <th scope="col">PR</th>
@@ -207,7 +206,6 @@
                         <td><a href=/exevada/obsdata/#{{analysis.dataset.name}}">{{analysis.dataset.name}}</a></td>
                         <td>{{analysis.variable_value}}</td>
                         <td>{{analysis.y_past}}-{{analysis.y_pres}}</td>
-                        <td>{{analysis.trend}}</td>
                         <td>{{analysis.sigma}}<span class='supsub'><sup class='superscript'>{{analysis.sigma_max}}</sup><sub class='subscript'>{{analysis.sigma_min}}</sub></span></td>
                         <td>{{analysis.xi}}<span class='supsub'><sup class='superscript'>{{analysis.xi_max}}</sup><sub class='subscript'>{{analysis.xi_min}}</sub></span></td>
                         <td>{{analysis.PR}}<span class='supsub'><sup class='superscript'>{{analysis.PR_max}}</sup><sub class='subscript'>{{analysis.PR_min}}</sub></span></td>
@@ -225,7 +223,6 @@
                         <td><a href=/exevada/moddata#{{analysis.dataset.model_name}}{{analysis.dataset.experiment}}">{{analysis.dataset.model_name}} {{analysis.dataset.experiment}}</a></td>
                         <td>{{analysis.variable_threshold}}</td>
                         <td>{{analysis.y_past}}-{{analysis.y_pres}}</td>
-                        <td>{{analysis.trend}}</td>
                         <td>{{analysis.sigma}}<span class='supsub'><sup class='superscript'>{{analysis.sigma_max}}</sup><sub class='subscript'>{{analysis.sigma_min}}</sub></span></td>
                         <td>{{analysis.xi}}<span class='supsub'><sup class='superscript'>{{analysis.xi_max}}</sup><sub class='subscript'>{{analysis.xi_min}}</sub></span></td>
                         <td>{{analysis.PR}}<span class='supsub'><sup class='superscript'>{{analysis.PR_max}}</sup><sub class='subscript'>{{analysis.PR_min}}</sub></span></td>
@@ -237,7 +234,7 @@
                         <td colspan=9 align="center" style="color:gray; font-weight: bold;">synthesis</td>
                     </tr>
                     <tr>
-                        <td colspan=6></td>
+                        <td colspan=5></td>
                         <td>{{attribution.PR}}<span class='supsub'><sup class='superscript'>{{attribution.PR_max}}</sup><sub class='subscript'>{{attribution.PR_min}}</sub></span></td>
                         <td>{{attribution.Delta_I}}<span class='supsub'><sup class='superscript'>{{attribution.Delta_I_max}}</sup><sub class='subscript'>{{attribution.Delta_I_min}}</sub></span></td>
                         <td>{{attribution.return_period}}</td>
