@@ -186,50 +186,50 @@
                         </tr>
                     </thead>
                     <tr>
-                        <td colspan=1 align="center" style="color:gray; font-weight: bold;"></td>
+                        <td colspan=1 style="color:gray; font-weight: bold;"></td>
                         <td colspan=1 style="color:gray; font-weight: bold;">value [{{attribution.variable.unit_symbol}}]</td>
-                        <td colspan=7 align="center" style="color:gray; font-weight: bold;">observations</td>
+                        <td colspan=6 class="text-center" style="color:gray; font-weight: bold;">observations</td>
                     </tr>
                     {% for analysis in attribution.observations.all %}
                     <tr>
                         <td><a href=/exevada/obsdata/#{{analysis.dataset.name}}">{{analysis.dataset.name}}</a></td>
                         <td>{{analysis.variable_value}}</td>
                         <td>{{analysis.y_past}}-{{analysis.y_pres}}</td>
-                        <td>{{analysis.sigma}}<span class='supsub'><sup class='superscript'>{{analysis.sigma_max|upper_bnd}}</sup><sub class='subscript'>{{analysis.sigma_min|lower_bnd}}</sub></span></td>
-                        <td>{{analysis.xi}}<span class='supsub'><sup class='superscript'>{{analysis.xi_max|upper_bnd}}</sup><sub class='subscript'>{{analysis.xi_min|lower_bnd}}</sub></span></td>
-                        <td>{{analysis.PR}}<span class='supsub'><sup class='superscript'>{{analysis.PR_max|upper_bnd}}</sup><sub class='subscript'>{{analysis.PR_min|lower_bnd}}</sub></span></td>
-                        <td>{{analysis.Delta_I}}<span class='supsub'><sup class='superscript'>{{analysis.Delta_I_max|upper_bnd}}</sup><sub class='subscript'>{{analysis.Delta_I_min|lower_bnd}}</sub></span></td>
-                        <td>{{analysis.T_return}}<span class='supsub'><sup class='superscript'>{{analysis.T_return_max|upper_bnd}}</sup><sub class='subscript'>{{analysis.T_return_min|lower_bnd}}</sub></span></td>
+                        <td>{{analysis.sigma}}<br>({{analysis.sigma_min|lower_bnd}} ... {{analysis.sigma_max|upper_bnd}})</td>
+                        <td>{{analysis.xi}}<br>({{analysis.xi_min|lower_bnd}} ... {{analysis.xi_max|upper_bnd}})</td>
+                        <td>{{analysis.PR}}<br>({{analysis.PR_min|lower_bnd}} ... {{analysis.PR_max|upper_bnd}})</sub></span></td>
+                        <td>{{analysis.Delta_I}}<br>({{analysis.Delta_I_min|lower_bnd}} ... {{analysis.Delta_I_max|upper_bnd}})</sub></span></td>
+                        <td>{{analysis.T_return}}<br>({{analysis.T_return_min|lower_bnd}} ... {{analysis.T_return_max|upper_bnd}})</td>
                     </tr>
                     {% endfor %}    
                     <tr>
-                        <td colspan=1 align="center" style="color:gray; font-weight: bold;"></td>
-                        <td colspan=1 style="color:gray; font-weight: bold;">threshold [{{attribution.variable.unit_symbol}}]</td>
-                        <td colspan=7 align="center" style="color:gray; font-weight: bold;">model evaluation</td>
+                        <td colspan=2 style="color:gray; font-weight: bold;"></td>
+                        <td colspan=6 class="text-center" style="color:gray; font-weight: bold;">model evaluation</td>
                     </tr>
                     {% for analysis in attribution.models.all %}
                     <tr>
                         <td><a href=/exevada/moddata#{{analysis.dataset.model_name}}{{analysis.dataset.experiment}}">{{analysis.dataset.model_name}} {{analysis.dataset.experiment}}</a></td>
-                        <td>{{analysis.variable_threshold}}</td>
+                        <td></td>
                         {% if analysis.y_past %}
                         <td>{{analysis.y_past}}-{{analysis.y_pres}}</td>
                         {% else %}
                         <td>preind-{{analysis.y_pres}}</td>
                         {% endif %}
-                        <td>{{analysis.sigma}}<span class='supsub'><sup class='superscript'>{{analysis.sigma_max|upper_bnd}}</sup><sub class='subscript'>{{analysis.sigma_min|lower_bnd}}</sub></span></td>
-                        <td>{{analysis.xi}}<span class='supsub'><sup class='superscript'>{{analysis.xi_max|upper_bnd}}</sup><sub class='subscript'>{{analysis.xi_min|lower_bnd}}</sub></span></td>
-                        <td>{{analysis.PR}}<span class='supsub'><sup class='superscript'>{{analysis.PR_max|upper_bnd}}</sup><sub class='subscript'>{{analysis.PR_min|lower_bnd}}</sub></span></td>
-                        <td>{{analysis.Delta_I}}<span class='supsub'><sup class='superscript'>{{analysis.Delta_I_max|upper_bnd}}</sup><sub class='subscript'>{{analysis.Delta_I_min|lower_bnd}}</sub></span></td>
+                        <td>{{analysis.sigma}}<br>({{analysis.sigma_min|lower_bnd}} ... {{analysis.sigma_max|upper_bnd}})</td>
+                        <td>{{analysis.xi}}<br>({{analysis.xi_min|lower_bnd}} ... {{analysis.xi_max|upper_bnd}})</td>
+                        <td>{{analysis.PR}}<br>({{analysis.PR_min|lower_bnd}} ... {{analysis.PR_max|upper_bnd}})</sub></span></td>
+                        <td>{{analysis.Delta_I}}<br>({{analysis.Delta_I_min|lower_bnd}} ... {{analysis.Delta_I_max|upper_bnd}})</sub></span></td>
                         <td>{{attribution.return_period}}</td>
                     </tr>
                     {% endfor %}
                     <tr>
-                        <td colspan=9 align="center" style="color:gray; font-weight: bold;">synthesis</td>
+                        <td colspan=2></td>
+                        <td colspan=6 class="text-center"  style="color:gray; font-weight: bold;">synthesis</td>
                     </tr>
                     <tr>
                         <td colspan=5></td>
-                        <td>{{attribution.PR}}<span class='supsub'><sup class='superscript'>{{attribution.PR_max|upper_bnd}}</sup><sub class='subscript'>{{attribution.PR_min|lower_bnd}}</sub></span></td>
-                        <td>{{attribution.Delta_I}}<span class='supsub'><sup class='superscript'>{{attribution.Delta_I_max|upper_bnd}}</sup><sub class='subscript'>{{attribution.Delta_I_min|lower_bnd}}</sub></span></td>
+                        <td>{{attribution.PR}}<br>({{attribution.PR_min|lower_bnd}} ... {{attribution.PR_max|upper_bnd}})</td>
+                        <td>{{attribution.Delta_I}}<br>({{attribution.Delta_I_min|lower_bnd}} ... {{attribution.Delta_I_max|upper_bnd}})</sub></span></td>
                         <td>{{attribution.return_period}}</td>
                     </tr>
                 </table>

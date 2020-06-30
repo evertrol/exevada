@@ -94,8 +94,8 @@
         <tr>
             <td>{{attribution.event.name}}</td>
             <td><a href="/exevada/events/{{attribution.event.pk}}#{{attribution.description}}">{{attribution.description}}</a></td>
-            <td>{{attribution.PR}}<span class='supsub'><sup class='superscript'>{{attribution.PR_max|upper_bnd}}</sup><sub class='subscript'>{{attribution.PR_min|lower_bnd}}</sub></span></td>
-            <td><span style='margin-right:1.3em; display:inline-block;'>{{attribution.Delta_I}}<span class='supsub'><sup class='superscript'>{{attribution.Delta_I_max|upper_bnd}}</sup><sub class='subscript'>{{attribution.Delta_I_min|lower_bnd}}</sub></span><span></span></span>{{attribution.variable.delta_I_unit_symbol}}</td>
+            <td>{{attribution.PR}} ({{attribution.PR_min|lower_bnd}}...{{attribution.PR_max|upper_bnd}})</td>
+            <td>{{attribution.Delta_I}} ({{attribution.Delta_I_min|lower_bnd}}...{{attribution.Delta_I_max|upper_bnd}})</sub></span></td>
             <td>{{attribution.return_period}}</td>
 </tr>
         {% endfor %}
