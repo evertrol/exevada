@@ -14,7 +14,7 @@
         </a>
     </li>
     <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="dropdowndatasets" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <a class="nav-link catalog-navigation" href="#" id="dropdowndatasets" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Datasets
         </a>
         <div class="dropdown-menu" aria-labelledby="dropdowndatasets">
@@ -41,15 +41,17 @@
                     $('#searchbox').focus()
                     $('.openclosesearch').toggle();
             });    
-    </script>    
+    </script>
 </ul>
 <form class="form-inline my-2 my-md-0">
     <input class="form-control" type="text" placeholder="Search">
 </form>
 {% endblock %}
 {% block container %}
-<div class="pt-5">
-<h2>Extreme event attribution catalogue</h2>
-This is the extreme event attribution database (exevada). This database will contain all attributions performed by the Copernicus prototype climate attribution service
+<h1 class="entry-title">Extreme event attribution catalogue</h1>
+<p>This is the extreme event attribution catalogue. This database will contain all attributions performed by the Copernicus prototype climate attribution service, and more.
+    If you wish to contribute...
+</p>
 </div>
+
 {% endblock %}
