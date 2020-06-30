@@ -26,6 +26,7 @@
                 $('#evttable').DataTable();
                  });
         </script>
+        {% if wp_integrate %}
         <link rel="stylesheet" href="{% static 'wp-content/themes/twentysixteen/style.css' %}" type="text/css">
         <link rel="stylesheet" href="{% static 'wp-content/themes/C3S-theme-V8.3/style.css' %}" type="text/css">
         <style>
@@ -71,6 +72,7 @@
                 border-spacing: 3px;
             }
         </style>
+        {% endif %}
         {% block extra_header %}
         {% endblock %}
     </head>
@@ -79,6 +81,7 @@
     <body>
         <div class="site">
         <div class="site-inner">
+        {% if wp_integrate %}
         <header id="masthead" class="site-header" role="banner">
 			<div class="site-header-main">
 				<div class="head-wrapper">
@@ -109,7 +112,8 @@
             </nav><!-- .main-navigation -->
 			</div><!-- .site-header-menu -->
 		    </div><!-- .site-header-main -->
-		</header>
+        </header>
+        {% endif %}
         {% block nav %}
         <nav class="navbar top navbar-expand-lg catalog-navigation">
         {% block nav_content %}
@@ -139,6 +143,7 @@
         {% endblock %}
             {% block foot %}
             {% block footer %}
+            {% if wp_integrate %}
             <footer id="colophon" class="site-footer" role="contentinfo">
                 <nav class="main-navigation" role="navigation" aria-label="Footer Primary Menu">
                     <div class="menu-main-menu-container">
@@ -185,7 +190,8 @@
 						<li><a href="/privacy-policy/">Privacy policy</a></li>
               		</ul>
 				</div>
-			</div>
+            </div>
+            {% endif %}
             <!-- Footer -->
             {% endblock %}
             {% endblock %}
