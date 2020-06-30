@@ -46,8 +46,8 @@
 </div>
     <dl class="row">
         <div class="col-sm-6">
-            <div class="alert alert-secondary" role="alert">                
-                <h5>Event definition</h4>
+            <div class="alert alert-secondary entry-content" role="alert">
+                <h2>Event definition</h2>
                     <dl class="row">
                     <dt class="col-sm-4">
                         <div class="float-right">Region:</div>
@@ -69,8 +69,8 @@
             </div>
         </div>
         <div class="col-sm-6">
-            <div class="alert alert-secondary" role="alert">                
-                <h5>Impact</h4>
+            <div class="alert alert-secondary entry-content" role="alert">                
+                <h2>Impact</h2>
                 <dl class="row">
                     <dt class="col-sm-4">
                         <div class="float-right">Casualties:</div>
@@ -79,7 +79,7 @@
                 </dl>
                 <dl class="row">
                     <dt class="col-sm-4">
-                        <div class="float-right">People affected:</div>
+                        <div class="float-right">Affected:</div>
                     </dt>
                     <dd class="col-sm-8">{{event.people_affected}}</dd>
                 </dl>
@@ -89,12 +89,6 @@
                     </dt>
                     <dd class="col-sm-8">{{event.economical_loss}} million dollars</dd>
                 </dl>
-                <dl class="row">
-                    <dt class="col-sm-4">
-                        <div class="float-right">Ecological impact:</div>
-                    </dt>
-                    <dd class="col-sm-8">{{event.ecological_impact}}</dd>
-                </dl>            
             </div>
         </div>
     </dl>
@@ -107,7 +101,9 @@
             </div>
         </dl>    
     </div>
-    <h5>Attribution studies</h4>
+    <div class="entry-content">
+        <h2>Attribution studies</h2>
+    </div>
     <div id="accordion">
         {% for attribution in event.attributions.all %}
         <div class="card" id="{{attribution.description}}">
@@ -119,8 +115,8 @@
             </h5>
           </div>
           <div id="collapse"{{ forloop.counter }} class="collapse show" aria-labelledby="heading"{{ forloop.counter }} data-parent="#accordion">
-            <div class="card-body">
-                <h5>Analysis</h4>
+            <div class="card-body entry-content">
+                <h3>Analysis</h3>
                     <dl class="row">
                         <dt class="col-sm-3">Location:</dt>
                         <dd class="col-sm-9">{{attribution.location.name}}: {{attribution.location.description}}
@@ -167,7 +163,7 @@
                         <dt class="col-sm-3">Statistical method:</dt>
                         <dd class="col-sm-9">{{attribution.variable}} fitted with {{attribution.distribution}} distribution. {{attribution.statistical_method.description}}</dd>
                     </dl>
-                    <h5>Results</h4>
+                    <h3>Results</h3>
                     <table id="evttable" class="table table-bordered">
                     <thead class="thead-dark">
                         <tr>
@@ -233,10 +229,10 @@
                         <td>{{attribution.return_period}}</td>
                     </tr>
                 </table>
-                <h5>Conclusion</h4>
+                <h3>Conclusion</h3>
                     <p>{{attribution.conclusions}}</p>
                 {% if attribution.journalpapers.ll %}
-                <h5>Publications</h4>
+                <h3>Publications</h3>
                     {% for paper in attribution.journalpapers.all %}
                         <p>
                             {{paper.authors}}, {{paper.title}}, {{paper.journal}}, {{paper.issue}} ({{paper.date|date:"M Y"}})
@@ -250,7 +246,7 @@
                     {% endfor %}
                 {% endif %}
                 {% if attribution.press_releases.all %}
-                <h5>Press releases</h4>
+                <h3>Media coverage</h3>
                     {% for press_release in attribution.press_releases.all %}
                         <p>
                             {{press_release.authors}}, {{press_release.title}}, {{press_release.medium}} ({{press_release.date|date:"M Y"}})
