@@ -160,7 +160,7 @@ class Attribution(SynthesisBase):
     contact = models.CharField(max_length=1024, help_text="Contact email adress", blank=True)
     webpage = models.URLField(max_length=512, help_text="Relevant web page", blank=True, default="https://attribution.climate.copernicus.eu")
     papers = models.ManyToManyField("JournalPaper", help_text="Reviewed papers describing the attribution", blank=True)
-    press_releases = models.ManyToManyField("PressCommunication", help_text="Press communication related to the attribution", blank=True)
+    press_communication = models.ManyToManyField("PressCommunication", help_text="Press communication related to the attribution", blank=True)
     def __str__(self):
         return ' '.join([str(self.event), self.description])
 

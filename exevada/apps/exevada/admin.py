@@ -79,7 +79,7 @@ class AttributionInline(NestedStackedInline):
     fieldsets = ( (None, {'fields': (('description', 'location'),)}),
                   ('Method', {'fields': (('variable', 'distribution', 'statistical_method'),)}),
                   ('Synthesis', {'fields' : ('return_period', ('PR', 'PR_min', 'PR_max'), ('Delta_I', 'Delta_I_min', 'Delta_I_max'), 'conclusions')}),
-                  ('Dissemination', {'fields' : ('contact', 'webpage', 'papers', 'press_releases')}))
+                  ('Dissemination', {'fields' : ('contact', 'webpage', 'papers', 'press_communication')}))
     inlines = [ObservationAnalysisInline, ModelAnalysisInline]
 
 @admin.register(models.Event)
