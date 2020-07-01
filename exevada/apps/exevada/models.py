@@ -72,11 +72,11 @@ class SynthesisBase(models.Model):
     PR = models.FloatField(help_text="Probability ratio", validators=[MinValueValidator(0.0)], default=0.0)
     PR_min = models.FloatField(help_text="Probability ratio lower bound", null=True, blank=True)
     PR_max = models.FloatField(help_text="Probability ratio upper bound", null=True, blank=True)
-    Delta_I = models.FloatField(help_text="Intensity change (%)", default=0.0, 
+    Delta_I = models.FloatField(help_text="Intensity change", default=0.0, 
                                 validators=[MinValueValidator(0), MaxValueValidator(100)])
-    Delta_I_min = models.FloatField(help_text="Intensity change lower bound (%)", null=True, blank=True, 
+    Delta_I_min = models.FloatField(help_text="Intensity change lower bound", null=True, blank=True, 
                                 validators=[MinValueValidator(0), MaxValueValidator(100)])
-    Delta_I_max = models.FloatField(help_text="Intensity change upper bound (%)", null=True, blank=True, 
+    Delta_I_max = models.FloatField(help_text="Intensity change upper bound", null=True, blank=True, 
                                 validators=[MinValueValidator(0), MaxValueValidator(100)])
     comments = models.TextField(help_text="Remarks", blank=True)
     class Meta:
