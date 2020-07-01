@@ -90,7 +90,7 @@
         "model": "exevada.statisticalmethod",
         "pk": 2,
         "fields": {
-          "name": "scale-shift",
+          "name": "scale",
           "description": "To be used in combination with precipitation extremes. We assume that the scale parameter σ scales with the position parameter μ such that the ratio σ/μ (the dispersion parameter) is constant. Thus the PDF is scaled up or down with GMST. The dependence of the position and scale parameters on GMST is also chosen to be exponential rather than linear to reflect the shape of the Clausius-Clapeyron relationship that is often a large factor in the increase in extreme precipitation",
           "covariate": "GMST",
           "dispersion_fit": "True"
