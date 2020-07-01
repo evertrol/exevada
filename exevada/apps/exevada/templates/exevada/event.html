@@ -219,9 +219,17 @@
                         <td><a href=/exevada/moddata#{{analysis.dataset.model_name}}{{analysis.dataset.experiment}}">{{analysis.dataset.model_name}} {{analysis.dataset.experiment}}</a></td>
                         <td></td>
                         {% if analysis.y_past %}
+                        {% if analysis.y_pres %}
                         <td>{{analysis.y_past}}-{{analysis.y_pres}}</td>
                         {% else %}
+                        <td>{{analysis.y_past}} stationary</td>
+                        {% endif %}
+                        {% else %}
+                        {% if analysis.y_pres %}
                         <td>preind-{{analysis.y_pres}}</td>
+                        {% else %}
+                        <td>stationary</td>
+                        {% endif %}
                         {% endif %}
                         <td>{{analysis.sigma}}<br>({{analysis.sigma_min|lower_bnd}} ... {{analysis.sigma_max|upper_bnd}})</td>
                         <td>{{analysis.xi}}<br>({{analysis.xi_min|lower_bnd}} ... {{analysis.xi_max|upper_bnd}})</td>

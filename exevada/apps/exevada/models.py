@@ -91,7 +91,7 @@ class AnalysisBase(SynthesisBase):
     xi_min = models.FloatField(help_text="Shape parameter lower bound", null=True, blank=True)
     xi_max = models.FloatField(help_text="Shape parameter upper bound", null=True, blank=True)
     y_past = models.PositiveIntegerField(help_text="Starting year of the analysis", null=True, blank=True)
-    y_pres = models.PositiveIntegerField(help_text="Ending year of the analysis")
+    y_pres = models.PositiveIntegerField(help_text="Ending year of the analysis", null=True, blank=True)
     trend = models.FloatField(help_text="Calculated trend", null=True, blank=True)
     class Meta:
         abstract = True
