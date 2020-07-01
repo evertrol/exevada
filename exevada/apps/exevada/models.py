@@ -177,10 +177,9 @@ class Event(models.Model):
     start_date = models.DateField(help_text="Event starting date")
     duration = models.PositiveIntegerField(help_text="Duration of the event (nr of days)")
     season = models.CharField(max_length=8, choices=Season.choices, help_text="Season", default=Season.DJJ)
-    deaths = models.PositiveIntegerField(help_text="Number of deaths", default=0)
-    people_affected = models.PositiveIntegerField(help_text="Number of people affected", default=0)
-    economical_loss = models.DecimalField(max_digits=12, decimal_places=2, help_text="Estimated economic loss in Keuro", default=0)
-    ecological_impact = models.TextField(help_text="Ecological impact", blank=True)
+    deaths = models.PositiveIntegerField(help_text="Number of deaths", blank=True, null=True)
+    people_affected = models.PositiveIntegerField(help_text="Number of people affected", blank=True, null=True)
+    economical_loss = models.DecimalField(max_digits=12, decimal_places=2, help_text="Estimated economic loss in Meuro", blank=True, null=True)
     comments = models.TextField(help_text="Remarks", blank=True)
     image = models.ImageField(upload_to='event_artwork')
     def __str__(self):

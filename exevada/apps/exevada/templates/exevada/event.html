@@ -75,19 +75,31 @@
                     <dt class="col-sm-4">
                         <div class="float-right">Casualties:</div>
                     </dt>
+                    {% if event.deaths != None %}
                     <dd class="col-sm-8">{{event.deaths}}</dd>
+                    {% else %}
+                    <dd class="col-sm-8">unknown</dd>
+                    {% endif %}
                 </dl>
                 <dl class="row">
                     <dt class="col-sm-4">
                         <div class="float-right">Affected:</div>
                     </dt>
+                    {% if event.people_affected != None %}
                     <dd class="col-sm-8">{{event.people_affected}}</dd>
+                    {% else %}
+                    <dd class="col-sm-8">unknown</dd>
+                    {% endif %}
                 </dl>
                 <dl class="row">
                     <dt class="col-sm-4">
                         <div class="float-right">Economic loss:</div>
                     </dt>
-                    <dd class="col-sm-8">{{event.economical_loss}} million dollars</dd>
+                    {% if event.economical_loss != None %}
+                    <dd class="col-sm-8">{{event.economical_loss}} million euro</dd>
+                    {% else %}
+                    <dd class="col-sm-8">unknown</dd>
+                    {% endif %}
                 </dl>
             </div>
         </div>
