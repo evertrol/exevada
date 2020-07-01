@@ -138,7 +138,6 @@ class ModelAnalysis(AnalysisBase):
         Reasonable = "reasonable", _("Reasonable")
     attribution = models.ForeignKey("Attribution", on_delete=models.CASCADE, related_name="models")
     dataset = models.ForeignKey("ModelDataSet", on_delete=models.CASCADE)
-    variable_threshold = models.FloatField(help_text="Variable threshold corresponding to attributed return period", default=0.0)
     seasonal_cycle = models.CharField(max_length=32, choices=EvaluationOutcome.choices)
     spatial_pattern = models.CharField(max_length=32, choices=EvaluationOutcome.choices)
     def __str__(self):
