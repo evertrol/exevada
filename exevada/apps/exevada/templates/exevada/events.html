@@ -1,4 +1,20 @@
 {% extends 'exevada/base.html' %}
+{% load leaflet_tags %}
+{% load static %}
+{% block extra_header %}
+    {% leaflet_js %}
+    {% leaflet_css %}
+    <style>
+        .leaflet-container {  /* all maps */
+            width:  700px;
+            height: 500px;
+        }
+        /* Resize the "display_raw" textbox */
+        .django-leaflet-raw-textarea {
+            width: 100%;
+        }
+    </style>
+{% endblock %}
 {% block navbar_collapse_nav %}
 <ul class="navbar-nav mr-auto">
     <li class="nav-item active">
@@ -36,6 +52,46 @@
 {% block container %}
 <h1 class="entry-title">Extreme event list</h1>
 <p>
+    <script>
+        var heatwave_icon = "{% static '/img/hot.png' %}"
+        function map_init_basic (map, options) {
+            var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community, Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>'
+}).addTo(map);
+            var geometry='{{location_geojson | safe}}';
+            var poly=JSON.parse(geometry);
+            var evtypejson='{{event_types | safe}}';
+            var evttypes = JSON.parse(evtypejson);
+            for ( var evttype in evttypes )
+            {
+                jsonLayer = L.geoJson(poly,  {
+                    filter: function(feature, layer) {
+                        console.log(feature.properties.event_type);
+                        return feature.properties.event_type == evttype;
+                    },
+                    pointToLayer: function(feature, latlng) 
+                    {
+                        var smallIcon = new L.Icon({
+                            iconSize: [27, 27],
+                            iconAnchor: [13, 27],
+                            popupAnchor:  [1, -24],
+                            iconUrl: "{% static '/img/hot.png' %}"
+                        });
+                        return L.marker(latlng, {icon: smallIcon});
+                    },
+                    onEachFeature: function (feature, layer) 
+                    {
+                        layer.bindPopup('<h5>' + feature.properties.name + '</h5>'+'<p>' + feature.properties.comments + '</p>');
+                    }
+                }).addTo(map);
+            }
+            map.setZoom(2)
+        }
+    </script>
+    <div align="right">
+    {% leaflet_map "yourmap" callback="window.map_init_basic" %}
+    </div>
+    <div class="pt-5">
     <table id="evttable" class="table">
         <thead class="thead-dark">
             <tr>
@@ -54,7 +110,7 @@
             <td>{{event.start_date|date:"d-m-Y"}}</td>
             <td>{{event.duration}} days</td>
         </tr>
-        {% endfor %}    
+        {% endfor %}
     </table>
 </p>
 </div>

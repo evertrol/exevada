@@ -181,5 +181,6 @@ class Event(models.Model):
     economical_loss = models.DecimalField(max_digits=12, decimal_places=2, help_text="Estimated economic loss in Meuro", blank=True, null=True)
     comments = models.TextField(help_text="Remarks", blank=True)
     image = models.ImageField(upload_to='event_artwork')
+    map_location = models.PointField(help_text="Geographic location of event (for map display)", null=True)
     def __str__(self):
         return self.name

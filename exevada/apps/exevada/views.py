@@ -1,13 +1,15 @@
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.core.serializers import serialize
+from django.core.serializers.json import DjangoJSONEncoder
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.contrib.gis import geos
-from .models import Event, Attribution, ObservationDataSet, ModelDataSet, Location
+from .models import Event, EventType, Attribution, ObservationDataSet, ModelDataSet, Location
 from project.settings.local import WORDPRESS
+import json
 
 class Index(ListView):
     template_name = 'exevada/index.html'
@@ -18,16 +20,20 @@ class Index(ListView):
         context['wp_integrate'] = WORDPRESS
         return context
 
-
 class EventsView(ListView):
     template_name = 'exevada/events.html'
     model = Event
     context_object_name = 'events'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        evttypes = {e.pk: e.name for e in EventType.objects.all()}
+        context["event_types"] = json.dumps(evttypes)
+        geom = serialize('geojson', Event.objects.all(),
+                        geometry_field="map_location",
+                        fields=('name','comments','event_type',))
+        context['location_geojson'] = geom
         context['wp_integrate'] = WORDPRESS
         return context
-
 
 class EventView(DetailView):
     template_name = 'exevada/event.html'

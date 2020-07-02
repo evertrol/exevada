@@ -1,5 +1,6 @@
 from django.contrib import admin
-from django.contrib.gis import admin as gisadmin
+from django.contrib.gis.db import models as geo_models
+from leaflet.admin import LeafletGeoAdmin, LeafletGeoAdminMixin, LeafletWidget
 from nested_inline.admin import NestedStackedInline, NestedModelAdmin
 from . import models
 
@@ -8,19 +9,11 @@ class EventType(admin.ModelAdmin):
     pass
 
 @admin.register(models.Location)
-class Location(gisadmin.GeoModelAdmin):
-    default_lat = 50
-    default_lon = 16
-    default_zoom = 4
-    display_wkt = True
-    layerswitcher = False
-    def get_map_widget(self, db_field):
-        olmap = super().get_map_widget(db_field)
-        olmap.params['is_generic'] = False
-        olmap.params['is_linestring'] = False
-        olmap.params['is_point'] = True
-        olmap.params['is_polygon'] = True
-        return olmap
+class Location(LeafletGeoAdmin):
+    def _get_map_widget(self, db_field, widget):
+        widget = super()._get_map_widget(db_field, widget)
+        widget.display_raw = True
+        return widget
 
 @admin.register(models.DistributionType)
 class DistributionType(admin.ModelAdmin):
@@ -64,7 +57,7 @@ class ObservationAnalysisInline(NestedStackedInline):
 
 class ModelAnalysisInline(NestedStackedInline):
     model = models.ModelAnalysis
-    fields = (  ('dataset', 'variable_threshold', 'trend' ),
+    fields = (  ('dataset', 'trend' ),
                 ('y_pres', 'y_past'),
                 ('sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max'), 
                 ('PR', 'PR_min', 'PR_max'), 
@@ -79,15 +72,23 @@ class AttributionInline(NestedStackedInline):
     fieldsets = ( (None, {'fields': (('description', 'location'),)}),
                   ('Method', {'fields': (('variable', 'distribution', 'statistical_method'),)}),
                   ('Synthesis', {'fields' : ('return_period', ('PR', 'PR_min', 'PR_max'), ('Delta_I', 'Delta_I_min', 'Delta_I_max'), 'conclusions')}),
-                  ('Dissemination', {'fields' : ('contact', 'webpage', 'papers', 'press_communication')}))
+                  ('Dissemination', {'fields' : ('contact', 'webpage', 'papers', 'press_communication')}) )
     inlines = [ObservationAnalysisInline, ModelAnalysisInline]
 
+
 @admin.register(models.Event)
-class Event(NestedModelAdmin):
-    fieldsets = ( (None, {'fields': ('name', 'event_type', 'image')}), 
-                ('Event Definition', {'fields' : ('region', ('start_date', 'duration', 'season'))}),
-                ('Impact', {'fields' : (('deaths', 'people_affected'), 'economical_loss')}),
-                (None, {'fields': ['comments']} ))
+class Event(LeafletGeoAdminMixin, NestedModelAdmin):
+    fieldsets = ( (None, {'fields': ('name', 'event_type', 'image', 'comments')}), 
+                ('Event Definition', {'fields' : (('region','map_location'), ('start_date', 'duration', 'season'))}),
+                ('Impact', {'fields' : (('deaths', 'people_affected'), 'economical_loss')}) )
+                
     inlines = [
         AttributionInline,
     ]
+    def _get_map_widget(self, db_field, widget):
+        widget = super()._get_map_widget(db_field, widget)
+        widget.map_height = "200px"
+        widget.map_width = "100%"
+        widget.settings_overrides = {'MIN_ZOOM': 1, 'DEFAULT_ZOOM': 2}
+        return widget
+
