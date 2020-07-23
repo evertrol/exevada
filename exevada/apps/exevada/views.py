@@ -27,10 +27,11 @@ class EventsView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         evttypes = {e.pk: e.name for e in EventType.objects.all()}
+        context["evttypes"] = evttypes
         context["event_types"] = json.dumps(evttypes)
         geom = serialize('geojson', Event.objects.all(),
                         geometry_field="map_location",
-                        fields=('name','comments','event_type',))
+                        fields=('name','comments','event_type','start_date','pk',))
         context['location_geojson'] = geom
         context['wp_integrate'] = WORDPRESS
         return context

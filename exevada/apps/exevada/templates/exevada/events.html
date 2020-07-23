@@ -6,12 +6,15 @@
     {% leaflet_css %}
     <style>
         .leaflet-container {  /* all maps */
-            width:  700px;
+            width:  900px;
             height: 500px;
         }
         /* Resize the "display_raw" textbox */
         .django-leaflet-raw-textarea {
             width: 100%;
+        }
+        input[type=checkbox] {
+            margin: 8px 0px 6px;
         }
     </style>
 {% endblock %}
@@ -52,46 +55,197 @@
 {% block container %}
 <h1 class="entry-title">Extreme event list</h1>
 <p>
-    <script>
-        var heatwave_icon = "{% static '/img/hot.png' %}"
-        function map_init_basic (map, options) {
-            var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community, Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>'
-}).addTo(map);
-            var geometry='{{location_geojson | safe}}';
-            var poly=JSON.parse(geometry);
-            var evtypejson='{{event_types | safe}}';
-            var evttypes = JSON.parse(evtypejson);
-            for ( var evttype in evttypes )
-            {
-                jsonLayer = L.geoJson(poly,  {
-                    filter: function(feature, layer) {
-                        console.log(feature.properties.event_type);
-                        return feature.properties.event_type == evttype;
-                    },
-                    pointToLayer: function(feature, latlng) 
-                    {
-                        var smallIcon = new L.Icon({
-                            iconSize: [27, 27],
-                            iconAnchor: [13, 27],
-                            popupAnchor:  [1, -24],
-                            iconUrl: "{% static '/img/hot.png' %}"
-                        });
-                        return L.marker(latlng, {icon: smallIcon});
-                    },
-                    onEachFeature: function (feature, layer) 
-                    {
-                        layer.bindPopup('<h5>' + feature.properties.name + '</h5>'+'<p>' + feature.properties.comments + '</p>');
+    <dl class="row">
+        <div class="col-sm-4">
+            <form>
+                <h5 class="mb-3">Filtering options</h5>
+                <hr>
+                {% for evttype_key, evttype_name in evttypes.items %}
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="show_{{evttype_name}}" checked="true">
+                    <label class="form-check-label" for="show_{{evttype_name}}">
+                        Display {{evttype_name}} events
+                    </label>
+                </div>
+                {% endfor %}
+                <hr>
+                <label for="yearrange">Select range of years</label>
+                <div class="form-group input-group input-daterange" id="yearrange">
+                    <input class="form-control" type="text" id="inputStartYear">
+                    <span class="input-group-text ml-3 mr-3 mt-3">to</span>
+                    <input class="form-control" type="text" id="inputEndYear">
+                    <script type="text/javascript">
+                        $('#yearrange input').each(function () {
+                            $(this).datepicker({
+                            autoclose: true,
+                            format: "yyyy",
+                            viewMode: "years",
+                            minViewMode: "years",
+                            });
+                            $(this).datepicker('clearDates');
+                        });                        
+                    </script>
+                </div>
+                <hr>
+                <label for="selseason" class="mb-4">Select a season for each year</label>
+                <div class="form-group input-group" id="selseason">
+                    <select class="custom-select form-control" id="inputStartMonth">
+                        <option selected value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                    <span class="input-group-text ml-3 mr-3">to</span>
+                    <select class="custom-select form-control" id="inputEndMonth">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option selected value="12">December</option>
+                    </select>                    
+                </div>
+                <hr>
+            </form>
+        </div>
+        <div class="col-sm-8">
+            <script>
+                var startYear = -9999
+                var endYear = 9999
+                var startSeason = 1
+                var endSeason = 12
+                function updateTimeWindow() {
+                    startYear = document.getElementById("inputStartYear").value
+                    if(startYear == ""){
+                        startYear = -9999
                     }
-                }).addTo(map);
-            }
-            map.setZoom(2)
-        }
-    </script>
-    <div align="right">
-    {% leaflet_map "yourmap" callback="window.map_init_basic" %}
-    </div>
-    <div class="pt-5">
+                    else{
+                        startYear = parseInt(startYear)
+                    }
+                    endYear = document.getElementById("inputEndYear").value
+                    if(endYear == ""){
+                        endYear = 9999
+                    }
+                    else{
+                        endYear = parseInt(endYear)
+
+                    }
+                    startSeason = parseInt(document.getElementById("inputStartMonth").value)
+                    endSeason = parseInt(document.getElementById("inputEndMonth").value)
+                }
+                function timeFilter(d)
+                {
+                    var yr = d.getFullYear();
+                    if(yr < startYear || yr > endYear){
+                        return false;
+                    }
+                    var mon = d.getMonth();
+                    if(startSeason < endSeason && (mon < startSeason || mon > endSeason)){
+                        return false;
+                    }
+                    if(startSeason > endSeason && (mon >= endSeason && mon < startSeason)){
+                        return false;
+                    }
+                    return true;
+                }
+                var heatwave_icon = "{% static '/img/hot.png' %}"
+                function map_init_basic (map, options) {
+                    var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community, Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>'
+                    }).addTo(map);
+                    var geometry='{{location_geojson | safe}}';
+                    var poly=JSON.parse(geometry);
+                    var evtypejson='{{event_types | safe}}';
+                    var evttypes = JSON.parse(evtypejson);
+                    var event_type;
+                    for ( var evttype in evttypes ){
+                        function outer() {
+                            var event_type = evttype
+                            function inner(feature){
+                                if(feature.properties.event_type != event_type){
+                                    return false;
+                                }
+                                var d = new Date(feature.properties.start_date);
+                                return timeFilter(d);
+                            }
+                            return inner
+                        }
+                        jsonLayer = L.geoJson(poly,  {
+                            filter: outer(),
+                            pointToLayer: function(feature, latlng) {
+                                var smallIcon = new L.Icon({
+                                    iconSize: [27, 27],
+                                    iconAnchor: [13, 27],
+                                    popupAnchor:  [1, -24],
+                                    iconUrl: "{% static '/img/hot.png' %}"
+                                });
+                                return L.marker(latlng, {icon: smallIcon});
+                            },
+                            onEachFeature: function (feature, layer){
+                                layer.bindPopup('<h5>' + feature.properties.name + '</h5>' +
+                                '<p>' + feature.properties.comments + '</p>' + 
+                                '<a href=' + feature.properties.pk + '>Details...</a>');
+                            },
+                        }).addTo(map);
+                        (function removeEvtTypeLayer(jsonLayer){
+                        document.getElementById("show_".concat(evttypes[evttype])).addEventListener("change", 
+                        function(e){
+                                if( this.checked ){
+                                    if(!map.hasLayer(jsonLayer)){                                        
+                                        jsonLayer.addTo(map);
+                                    }
+                                }
+                                else{
+                                    if(map.hasLayer(jsonLayer)){                                        
+                                        jsonLayer.removeFrom(map);
+                                    }
+                                }                                
+                        })})(jsonLayer);
+                    }
+                    map.setZoom(2);
+
+                    function updateMapAndTable()
+                    {
+                        updateTimeWindow();
+                        map.eachLayer( function(l){
+                            if(l instanceof L.GeoJSON){
+                                l.clearLayers()
+                                l.addData(poly)
+                            }
+                        });
+                        $('#evttable').DataTable().draw();
+                    }
+
+                    $(document).ready(function(){
+                            $('#yearrange').datepicker().on("changeDate", function (e){
+                                updateMapAndTable()
+                            })
+                            $('#inputStartMonth').on("change", function (e){
+                                updateMapAndTable()
+                            })
+                            $('#inputEndMonth').on("change", function (e){
+                                updateMapAndTable()
+                            })
+                    })
+                }
+            </script>        
+            {% leaflet_map "yourmap" callback="window.map_init_basic" %}
+        </div>
+    </dl>
     <table id="evttable" class="table">
         <thead class="thead-dark">
             <tr>
@@ -107,11 +261,41 @@
             <td><a href="{{event.pk}}">{{event.name}}</a></td>
             <td>{{event.event_type}}</td>
             <td>{{event.region}}</td>
-            <td>{{event.start_date|date:"d-m-Y"}}</td>
+            <td>{{event.start_date|date:"Y-m-d"}}</td>
             <td>{{event.duration}} days</td>
         </tr>
         {% endfor %}
     </table>
-</p>
-</div>
+    </p>
+    {% for evttype_key, evttype_name in evttypes.items %}
+    <script>
+        var evttype = "{{evttype_name}}"
+
+        document.getElementById("show_" + evttype).addEventListener("change", 
+            function(e){$('#evttable').DataTable().draw()});
+        
+        (function addEventTypeTableHandler(t){
+            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex){
+                var input = document.getElementById("show_" + t)
+                return input.checked || data[1] != t
+            })
+        })(evttype);
+    </script>
+    {% endfor %}
+    <script>
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex){
+            return timeFilter(new Date(data[3]))
+        })
+        $(document).ready(function() {
+            $('#evttable').DataTable( {
+                responsive: true,
+                pagingType: "numbers",
+                "order": [[3, "desc"]],
+                "drawCallback": function () {
+                    $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+        }
+            });
+        });
+        $('#evttable ul.pagination').addClass("pagination-sm");
+    </script>
 {% endblock %}
