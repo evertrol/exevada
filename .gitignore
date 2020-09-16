@@ -4,4 +4,4 @@ exevada/apps/exevada/static
 exevada/apps/exevada/wp-content
 .vscode
 *.pyc
-
+exevada/venv

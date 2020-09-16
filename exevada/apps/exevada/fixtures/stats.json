@@ -4,7 +4,7 @@
         "pk": 1,
         "fields": {
             "name": "heat wave",
-            "description": "period of excessively high temperature"
+            "description": "period of high temperature"
         }
     },
     {
@@ -12,7 +12,7 @@
         "pk": 2,
         "fields": {
             "name": "cold wave",
-            "description": "period of excessively low temperature"
+            "description": "period of low temperature"
         }
     },
     {
