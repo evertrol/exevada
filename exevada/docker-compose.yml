@@ -3,13 +3,18 @@ version: '3'
 services:
     db:
       image: kartoza/postgis
+      hostname: db
       environment:
         - POSTGRES_DB=exevada
         - POSTGRES_USER=c3s62admin
         - POSTGRES_PASSWORD=c3s62psswd
+      ports:
+        - "5432:5432"
+      volumes:
+        - ./postgres-data:/var/lib/postgresql/data
     web:
       build: .
-      command: python manage.py runserver 0.0.0.0:8000
+      command: /bin/bash -c "sleep 5 ; ./entrypoint.sh"
       volumes:
         - .:/opt/exevada
       ports:
