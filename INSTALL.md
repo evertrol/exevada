@@ -73,9 +73,16 @@ Furthermore, one should edit the allowed hosts in the local settings `project/se
 ```python
 ALLOWED_HOSTS = ['*']
 ```
-Once this configuration is done, starting the database and web frotend is done by
+Once this configuration is done, starting the database and web frontend is done by
 ```shell
 $ docker-compose build .
 $ docker-compose up
 $ docker-compose run web python manage.py loaddata stats
 ```
+
+## Wordpress styling
+Styling of the frontend is provided by the C3S wordpress theme, which you need to have access to. If so, the styling can be applied to the web frontend by setting 
+```python
+WORDPRESS=True
+```
+in the local settings file `project/settings/local.py` and creating a symbolic link from `exevada/apps/exevada/static/wp-content` to the installed wordpress `wp-content` folder.
