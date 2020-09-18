@@ -6,8 +6,8 @@ services:
       hostname: db
       environment:
         - POSTGRES_DB=exevada
-        - POSTGRES_USER=c3s62admin
-        - POSTGRES_PASSWORD=c3s62psswd
+        - POSTGRES_USER=dbuser
+        - POSTGRES_PASSWORD=dbpsswd
       ports:
         - "5432:5432"
       volumes:
