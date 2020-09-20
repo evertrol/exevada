@@ -27,7 +27,7 @@
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="/exevada/attributions">
+        <a class="nav-link" href="/attributions">
             Attribution Studies
             <span class="sr-only">(current)</span>
         </a>
@@ -37,8 +37,8 @@
             Datasets
         </a>
         <div class="dropdown-menu" aria-labelledby="dropdowndatasets">
-            <a class="dropdown-item" href="/exevada/obsdata">Observation data</a>
-            <a class="dropdown-item" href="/exevada/moddata">Model simulations</a>
+            <a class="dropdown-item" href="/obsdata">Observation data</a>
+            <a class="dropdown-item" href="/moddata">Model simulations</a>
         </div>
     </li>
     <li class="nav-item">
@@ -62,9 +62,9 @@
                 <hr>
                 {% for evttype_key, evttype_name in evttypes.items %}
                 <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="show_{{evttype_name}}" checked="true">
-                    <label class="form-check-label" for="show_{{evttype_name}}">
-                        Display {{evttype_name}} events
+                    <input type="checkbox" class="form-check-input" id="show_{{evttype_name.name}}" checked="true">
+                    <label class="form-check-label" for="show_{{evttype_name.name}}">
+                        Display {{evttype_name.name}} events
                     </label>
                 </div>
                 {% endfor %}
@@ -162,7 +162,6 @@
                     }
                     return true;
                 }
-                var heatwave_icon = "{% static '/img/hot.png' %}"
                 function map_init_basic (map, options) {
                     var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community, Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>'
@@ -184,6 +183,7 @@
                             }
                             return inner
                         }
+                        var icon = evttypes[evttype]["icon"]
                         jsonLayer = L.geoJson(poly,  {
                             filter: outer(),
                             pointToLayer: function(feature, latlng) {
@@ -191,7 +191,7 @@
                                     iconSize: [27, 27],
                                     iconAnchor: [13, 27],
                                     popupAnchor:  [1, -24],
-                                    iconUrl: "{% static '/img/hot.png' %}"
+                                    iconUrl: icon
                                 });
                                 return L.marker(latlng, {icon: smallIcon});
                             },
@@ -202,7 +202,7 @@
                             },
                         }).addTo(map);
                         (function removeEvtTypeLayer(jsonLayer){
-                        document.getElementById("show_".concat(evttypes[evttype])).addEventListener("change", 
+                        document.getElementById("show_".concat(evttypes[evttype]["name"])).addEventListener("change", 
                         function(e){
                                 if( this.checked ){
                                     if(!map.hasLayer(jsonLayer)){                                        
@@ -216,7 +216,7 @@
                                 }                                
                         })})(jsonLayer);
                     }
-                    map.setZoom(2);
+                    map.setZoom(1.5);
 
                     function updateMapAndTable()
                     {
@@ -269,7 +269,7 @@
     </p>
     {% for evttype_key, evttype_name in evttypes.items %}
     <script>
-        var evttype = "{{evttype_name}}"
+        var evttype = "{{evttype_name.name}}"
 
         document.getElementById("show_" + evttype).addEventListener("change", 
             function(e){$('#evttable').DataTable().draw()});

@@ -1,6 +1,6 @@
-from django.urls import path, include
+from django.urls import re_path, include
 
 
 urlpatterns = [
-    path('exevada/', include('apps.exevada.urls', namespace='events')),
+    re_path(r'^', include('apps.exevada.urls')),
 ]

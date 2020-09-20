@@ -3,7 +3,6 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 
-app_name = 'exevada'
 urlpatterns = [
     path('', views.Index.as_view(), name='index'),
     path('events/', views.EventsView.as_view(), name='events'),

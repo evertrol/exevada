@@ -78,7 +78,7 @@ class AttributionInline(NestedStackedInline):
 
 @admin.register(models.Event)
 class Event(LeafletGeoAdminMixin, NestedModelAdmin):
-    fieldsets = ( (None, {'fields': ('name', 'event_type', 'image', 'comments')}), 
+    fieldsets = ( (None, {'fields': ('name', 'event_type', 'image', 'image_caption', 'comments')}), 
                 ('Event Definition', {'fields' : (('region','map_location'), ('start_date', 'duration', 'season'))}),
                 ('Impact', {'fields' : (('deaths', 'people_affected'), 'economical_loss')}) )
                 
@@ -89,6 +89,6 @@ class Event(LeafletGeoAdminMixin, NestedModelAdmin):
         widget = super()._get_map_widget(db_field, widget)
         widget.map_height = "200px"
         widget.map_width = "100%"
-        widget.settings_overrides = {'MIN_ZOOM': 1, 'DEFAULT_ZOOM': 2}
+        #widget.settings_overrides = {'MIN_ZOOM': 1, 'DEFAULT_ZOOM': 2}
         return widget
 

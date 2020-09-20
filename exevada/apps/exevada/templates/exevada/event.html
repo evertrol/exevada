@@ -9,13 +9,13 @@
 {% block navbar_collapse_nav %}
 <ul class="navbar-nav mr-auto">
     <li class="nav-item">
-        <a class="nav-link" href="/exevada/events">
+        <a class="nav-link" href="/events">
             Events
             <span class="sr-only">(current)</span>
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="/exevada/attributions">
+        <a class="nav-link" href="/attributions">
             Attribution Studies
             <span class="sr-only">(current)</span>
         </a>
@@ -25,8 +25,8 @@
             Datasets
         </a>
         <div class="dropdown-menu" aria-labelledby="dropdowndatasets">
-            <a class="dropdown-item" href="/exevada/obsdata">Observation data</a>
-            <a class="dropdown-item" href="/exevada/moddata">Model simulations</a>
+            <a class="dropdown-item" href="/obsdata">Observation data</a>
+            <a class="dropdown-item" href="/moddata">Model simulations</a>
         </div>
     </li>
     <li class="nav-item">
@@ -104,15 +104,17 @@
             </div>
         </div>
     </dl>
+    {% if event.image %}
     <div class="container-fluid px-0">
         <dl class="row">
             <div class="col-md-12">
-                <img src="{% static '/img/Drought_Denmark_2018.png' %}" width="100%" class="img-responsive" alt='drought_sat'>
+                <img src="{{event.image.url}}" width="100%" class="img-responsive" alt="{{event.image_caption}}">
             <br/>
-            <small>Image caption not provided</small>        
-            </div>
-        </dl>    
+            <small>{{event.image_caption}}</small>
+            </div>img
+        </dl>
     </div>
+    {% endif %}
     <div class="entry-content">
         <h2>Attribution studies</h2>
     </div>
@@ -200,7 +202,7 @@
                     </tr>
                     {% for analysis in attribution.observations.all %}
                     <tr>
-                        <td><a href=/exevada/obsdata/#{{analysis.dataset.name}}">{{analysis.dataset.name}}</a></td>
+                        <td><a href=/obsdata/#{{analysis.dataset.name}}">{{analysis.dataset.name}}</a></td>
                         <td>{{analysis.variable_value}}</td>
                         <td>{{analysis.y_past}}-{{analysis.y_pres}}</td>
                         <td>{{analysis.sigma}}<br>({{analysis.sigma_min|lower_bnd}} ... {{analysis.sigma_max|upper_bnd}})</td>
@@ -216,7 +218,7 @@
                     </tr>
                     {% for analysis in attribution.models.all %}
                     <tr>
-                        <td><a href=/exevada/moddata#{{analysis.dataset.model_name}}{{analysis.dataset.experiment}}">{{analysis.dataset.model_name}} {{analysis.dataset.experiment}}</a></td>
+                        <td><a href=/moddata#{{analysis.dataset.model_name}}{{analysis.dataset.experiment}}">{{analysis.dataset.model_name}} {{analysis.dataset.experiment}}</a></td>
                         <td></td>
                         {% if analysis.y_past %}
                         {% if analysis.y_pres %}

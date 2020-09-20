@@ -1,7 +1,8 @@
 from django.contrib.gis.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.files.storage import FileSystemStorage
 from django.utils.translation import gettext_lazy as _
-
+from django.conf import settings
 
 class Location(models.Model):
     name = models.CharField(max_length=256, help_text="Location name")
@@ -10,10 +11,14 @@ class Location(models.Model):
     def __str__(self):
         return self.name
 
+def event_type_icon_path(instance, filename):
+    return instance.name + "_icon" + filename.split('.')[-1]
 
 class EventType(models.Model):
     name = models.CharField(max_length=32, unique=True, help_text="Event type")
     description =  models.TextField(blank=True)
+    icon = models.ImageField(storage=FileSystemStorage(location=settings.STATIC_ROOT), 
+                            upload_to="img/", blank=True)
     def __str__(self):
         return self.name
 
@@ -180,7 +185,9 @@ class Event(models.Model):
     people_affected = models.PositiveIntegerField(help_text="Number of people affected", blank=True, null=True)
     economical_loss = models.DecimalField(max_digits=12, decimal_places=2, help_text="Estimated economic loss in Meuro", blank=True, null=True)
     comments = models.TextField(help_text="Remarks", blank=True)
-    image = models.ImageField(upload_to='event_artwork')
+    image = models.ImageField(storage=FileSystemStorage(location=settings.STATIC_ROOT),
+                                upload_to="img/", blank=True)
+    image_caption = models.TextField(help_text="Image caption", blank=True)
     map_location = models.PointField(help_text="Geographic location of event (for map display)", null=True)
     def __str__(self):
         return self.name

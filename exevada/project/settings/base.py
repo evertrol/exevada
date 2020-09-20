@@ -76,7 +76,8 @@ DATABASES = {
         'NAME': 'exevada',
         'USER': 'c3s62admin',
         'PASSWORD': 'c3s62psswd',
-        'HOST': 'localhost'
+        'HOST': 'localhost',
+        'PORT': '5432'
     }
 }
 
@@ -104,5 +105,5 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-MEDIA_ROOT = '/home/gvdoord/Software/exevada/exevada/media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
