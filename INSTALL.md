@@ -4,7 +4,7 @@ In the following instructions we assume you have cloned the repository to your l
 $ git clone git@github.com:C3S-attribution-service/exevada.git
 $ cd exevada/exevada
 ```
-## Linux system-wide
+## Linux local installation
 ### Python dependencies
 We have included a set of required python-3 packages in `requirements.txt`. You can optionally create a virtual environment to contain them, and run
 ```shell
@@ -78,6 +78,16 @@ Once this configuration is done, starting the database and web frontend is done 
 $ docker-compose build .
 $ docker-compose up
 $ docker-compose run web python manage.py loaddata stats
+```
+
+## Creating an admin user
+Run the following command:
+```shell
+python manage.py createsuperuser
+```
+and provide the requested user name, email address and password. If you are using the docker images you can do
+```shell
+$ docker-compose run web python manage.py createsuperuser
 ```
 
 ## Wordpress styling
