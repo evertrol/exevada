@@ -187,17 +187,17 @@
                             {% if attribution.statistical_method.dispersion_fit %}
                             <th scope="col">&sigma;/&mu;</th>
                             {% else %}
-                            <th scope="col">&sigma; [{{attribution.variable.unit_symbol}}]</th>
+                            <th scope="col">&sigma; [{{attribution.variable.unit_symbol|safe}}]</th>
                             {% endif %}
                             <th scope="col">&xi;</th>
                             <th scope="col">PR</th>
-                            <th scope="col">&Delta;I [{{attribution.variable.delta_I_unit_symbol}}]</th>
+                            <th scope="col">&Delta;I [{{attribution.variable.delta_I_unit_symbol|safe}}]</th>
                             <th scope="col">T<sub>ret</sub> [yr]</th>
                         </tr>
                     </thead>
                     <tr>
                         <td colspan=1 style="color:gray; font-weight: bold;"></td>
-                        <td colspan=1 style="color:gray; font-weight: bold;">value [{{attribution.variable.unit_symbol}}]</td>
+                        <td colspan=1 style="color:gray; font-weight: bold;">value [{{attribution.variable.unit_symbol|safe}}]</td>
                         <td colspan=6 class="text-center" style="color:gray; font-weight: bold;">observations</td>
                     </tr>
                     {% for analysis in attribution.observations.all %}

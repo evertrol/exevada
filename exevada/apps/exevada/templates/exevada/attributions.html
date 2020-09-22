@@ -60,6 +60,7 @@
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', maxZoom=2).addTo(map);
             var geometry='{{location_geojson | safe}}';
             var poly=JSON.parse(geometry);
+            console.log("THE polygons are: ", poly)
             jsonLayer = L.geoJson(poly,  {
                 onEachFeature: function (feature, layer) 
                 {
@@ -67,7 +68,7 @@
                 }
             }).addTo(map);
             map.fitBounds(jsonLayer.getBounds());
-            map.zoomOut(10);
+//            map.zoomOut(10);
         }
     </script>
     <div>
@@ -87,7 +88,7 @@
         {% for attribution in object_list %}
         <tr>
             <td>{{attribution.event.name}}</td>
-            <td><a href="/exevada/events/{{attribution.event.pk}}#{{attribution.description}}">{{attribution.description}}</a></td>
+            <td><a href="/events/{{attribution.event.pk}}#{{attribution.description}}">{{attribution.description}}</a></td>
             <td>{{attribution.PR}} ({{attribution.PR_min|lower_bnd}}...{{attribution.PR_max|upper_bnd}})</td>
             <td>{{attribution.Delta_I}} ({{attribution.Delta_I_min|lower_bnd}}...{{attribution.Delta_I_max|upper_bnd}})</sub></span></td>
             <td>{{attribution.return_period}}</td>

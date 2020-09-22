@@ -122,7 +122,7 @@
                 <hr>
             </form>
         </div>
-        <div class="col-sm-8">
+        <div class="col-sm-8 leaflet-container">
             <script>
                 var startYear = -9999
                 var endYear = 9999
@@ -165,7 +165,7 @@
                 function map_init_basic (map, options) {
                     var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community, Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>'
-                    }).addTo(map);
+                    , maxZoom: 18}).addTo(map);
                     var geometry='{{location_geojson | safe}}';
                     var poly=JSON.parse(geometry);
                     var evtypejson='{{event_types | safe}}';
@@ -216,18 +216,26 @@
                                 }                                
                         })})(jsonLayer);
                     }
-                    map.setZoom(1.5);
+
+                    map.setMaxBounds(map.getBounds());
+                    map.dragging.disable();
+                    delete map.dragging._draggable;
+                    map.options.worldCopyJump=true;
+                    map.options.zoomSnap=0.25
+                    map.dragging.enable();
+                    map.fitBounds([
+                        [-60, -120], [80, 180]]);
 
                     function updateMapAndTable()
                     {
                         updateTimeWindow();
+                        $('#evttable').DataTable().draw();
                         map.eachLayer( function(l){
                             if(l instanceof L.GeoJSON){
                                 l.clearLayers()
                                 l.addData(poly)
                             }
                         });
-                        $('#evttable').DataTable().draw();
                     }
 
                     $(document).ready(function(){
