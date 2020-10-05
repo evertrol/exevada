@@ -121,35 +121,34 @@
     <div id="accordion">
         {% for attribution in event.attributions.all %}
         <div class="card" id="{{attribution.description}}">
-          <div class="card-header" id="heading"{{ forloop.counter }}>
+          <div class="card-header" id="heading{{ forloop.counter }}">
             <h5 class="mb-0">
-              <button class="btn btn-link" data-toggle="collapse" data-target="#collapse"{{ forloop.counter }} aria-expanded="true" aria-controls="collapse"{{ forloop.counter }}>
+              <button class="btn btn-link" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}">
                 {{attribution.description}}
               </button>
             </h5>
           </div>
-          <div id="collapse"{{ forloop.counter }} class="collapse show" aria-labelledby="heading"{{ forloop.counter }} data-parent="#accordion">
+          <div id="collapse{{ forloop.counter }}" class="collapse show" aria-labelledby="heading{{ forloop.counter }}" data-parent="#accordion">
             <div class="card-body entry-content">
                 <h3>Analysis</h3>
                     <dl class="row">
                         <dt class="col-sm-3">Location:</dt>
                         <dd class="col-sm-9">{{attribution.location.name}}: {{attribution.location.description}}
                         <!-- Trigger the modal with a button -->
-                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal">Show</button>
+                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#showloc{{ forloop.counter }}">Show</button>
                             <!-- Modal -->
-                            <div id="myModal" href='#myModal' class="modal fade" role="dialog">
+                            <div id="showloc{{ forloop.counter }}" href="#showloc{{ forloop.counter }}" class="modal fade" role="dialog">
                             <div class="modal-dialog">
                                 <!-- Modal content-->
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                        <h4 class="modal-title">{{attribution.location.name}}</h4>
+                                        <h3 class="modal-title">{{attribution.location.name}}</h3>
                                     </div>
                                     <div class="modal-body">
                                         <p>{{attribution.location.description}}</p>
                                         <script>
-                                            function map_init_basic (map, options) {
-                                                $('#myModal').on('shown.bs.modal', function(){
+                                            function {{attribution.location.name|cut:" "}} (map, options) {
+                                                $('#showloc' + '{{ forloop.counter }}').on('shown.bs.modal', function(){
                                                     setTimeout(function() {
                                                     map.invalidateSize();
                                                     }, 1);
@@ -157,14 +156,13 @@
                                                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', maxZoom=2).addTo(map);
                                                 var geometry='{{attribution.location.area.geojson | safe}}';
                                                 var poly=JSON.parse(geometry);
-                                                jsonLayer = L.geoJson(poly).addTo(map);
+                                                var jsonLayer = L.geoJson(poly).addTo(map);
                                                 map.fitBounds(jsonLayer.getBounds());
-                                                map.zoomOut(10);
+                                                map.zoomOut(8);
                                             }
-                                        </script>                                  
-                                    
+                                        </script>
                                         <div>
-                                        {% leaflet_map "yourmap" callback="window.map_init_basic" %}
+                                        {% leaflet_map attribution.location.name callback=attribution.location.name|cut:" " %}
                                         </div>
                                     </div>
                                     <div class="modal-footer">
