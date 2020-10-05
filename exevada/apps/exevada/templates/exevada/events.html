@@ -16,6 +16,14 @@
         input[type=checkbox] {
             margin: 8px 0px 6px;
         }
+        #events_map {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            height: 100%;
+            width: 100%;
+        }
     </style>
 {% endblock %}
 {% block navbar_collapse_nav %}
@@ -251,7 +259,7 @@
                     })
                 }
             </script>        
-            {% leaflet_map "yourmap" callback="window.map_init_basic" %}
+            {% leaflet_map "events_map" callback="window.map_init_basic" %}
         </div>
     </dl>
     <table id="evttable" class="table">

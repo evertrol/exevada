@@ -16,6 +16,14 @@
         .django-leaflet-raw-textarea {
             width: 100%;
         }
+        #locations_map {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            height: 100%;
+            width: 100%;
+        }
     </style>
 {% endblock %}
 {% block navbar_collapse_nav %}
@@ -55,31 +63,102 @@
 {% block container %}
 <h1 class="entry-title">Attribution Studies</h1>
 <p>
-    <script>
-        function map_init_basic (map, options) {
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', maxZoom=2).addTo(map);
-            var geometry='{{location_geojson | safe}}';
-            var poly=JSON.parse(geometry);
-            console.log("THE polygons are: ", poly)
-            jsonLayer = L.geoJson(poly,  {
-                onEachFeature: function (feature, layer) 
-                {
-                    layer.bindPopup('<h5>' + feature.properties.name + '</h5>'+'<p>' + feature.properties.description + '</p>');
+    <dl class="row">
+        <div class="col-sm-3">
+            <form>
+                <label for="selstation" class="mb-4">Filter on locations</label>
+                <div class="form-group input-group">
+                    <select class="custom-select form-control" id="setLocation">
+                        <option selected value="all">none</option>
+                        {% for loc in locations %}
+                        <option value="{{loc}}">{{loc}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-9 leaflet-container">
+            <script>
+                function map_init_basic (map, options) {
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', maxZoom=2).addTo(map);
+                    var geometry='{{location_geojson | safe}}';
+                    var poly=JSON.parse(geometry);
+                    var popups = {};
+                    jsonLayer = L.geoJson(poly,  {
+                        onEachFeature: function (feature, layer) 
+                        {
+                            popup = layer.bindPopup('<h5>' + feature.properties.name + '</h5>'+'<p>' + feature.properties.description + '</p>');
+                            popups[feature.properties.name] = popup
+                        }
+                    }).addTo(map);
+                    map.fitBounds(jsonLayer.getBounds());
+                    function updateMapAndTable(loc)
+                    {
+                        if(loc == "all")
+                        {
+                            map.fitBounds(jsonLayer.getBounds());
+                        }
+                        else
+                        {
+                            for(i in poly.features)
+                            {
+                                f = poly.features[i];
+                                if(f.properties["name"] == loc)
+                                {
+                                    if(f.geometry.type == "Point")
+                                    {
+                                        map.flyTo([f.geometry.coordinates[1], f.geometry.coordinates[0]]);
+                                    }
+                                    else
+                                    {
+                                        coords = f.geometry.coordinates[0];
+                                        latlns = Array(coords.length);
+                                        for(i = 0; i < coords.length; ++i)
+                                        {
+                                            latlns[i] = L.latLng(coords[i][1],coords[i][0]);
+                                        }
+                                        map.flyToBounds(L.latLngBounds(latlns));
+                                    }
+                                    console.log(popups[loc])
+                                    popups[loc].openPopup();
+                                }
+                            }
+                        }
+                        $('#attrtable').DataTable().draw();
+                    }
+                    $(document).ready(function(){
+                            $('#setLocation').on("change", function (e){
+                                loc = document.getElementById("setLocation").value
+                                updateMapAndTable(loc)
+                            })
+                    })
                 }
-            }).addTo(map);
-            map.fitBounds(jsonLayer.getBounds());
-//            map.zoomOut(10);
-        }
-    </script>
-    <div>
-    {% leaflet_map "yourmap" callback="window.map_init_basic" %}
-    </div>
-    <div class="pt-5">
-    <table id="evttable" class="table">
+                $.fn.dataTable.ext.search.push(function(settings, data, dataIndex){
+                    loc = document.getElementById("setLocation").value;
+                    return loc == "all" || data[2] == loc
+                })
+                $(document).ready(function() {
+                    $('#attrtable').DataTable( {
+                        responsive: true,
+                        pagingType: "numbers",
+                        "order": [[3, "desc"]],
+                        "drawCallback": function () {
+                            $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+                        },
+                        
+                    });
+                });
+                $('#evttable ul.pagination').addClass("pagination-sm");
+            </script>
+            {% leaflet_map "locations_map" callback="window.map_init_basic" %}
+        </div>
+    </dl>
+    <table id="attrtable" class="table">
         <thead class="thead-dark">
             <tr>
               <th scope="col">event</th>
               <th scope="col">attribution study</th>
+              <th scope="col">location</th>
               <th scope="col">probability ratio</th>
               <th scope="col">intensity change</th>
               <th scope="col">return period [yr]</th>
@@ -89,8 +168,9 @@
         <tr>
             <td>{{attribution.event.name}}</td>
             <td><a href="/events/{{attribution.event.pk}}#{{attribution.description}}">{{attribution.description}}</a></td>
+            <td>{{attribution.location.name}}</td>
             <td>{{attribution.PR}} ({{attribution.PR_min|lower_bnd}}...{{attribution.PR_max|upper_bnd}})</td>
-            <td>{{attribution.Delta_I}} ({{attribution.Delta_I_min|lower_bnd}}...{{attribution.Delta_I_max|upper_bnd}})</sub></span></td>
+            <td>{{attribution.Delta_I}} ({{attribution.Delta_I_min|lower_bnd}}...{{attribution.Delta_I_max|upper_bnd}}) {{attribution.variable.delta_I_unit_symbol|safe}}</sub></span></td>
             <td>{{attribution.return_period}}</td>
         </tr>
         {% endfor %}

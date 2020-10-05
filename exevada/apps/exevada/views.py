@@ -56,6 +56,7 @@ class AttributionsView(ListView):
                     fields=('name','description',))
         context['location_geojson'] = geom
         context['wp_integrate'] = WORDPRESS
+        context['locations'] = [l.name for l in Location.objects.all()]
         return context
 
 
