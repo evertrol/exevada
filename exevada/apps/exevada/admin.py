@@ -44,7 +44,16 @@ class PressRelease(admin.ModelAdmin):
     fields = ('title', 'authors', ('medium', 'date'), ('url', 'doi')) 
     pass
 
-class ObservationAnalysisInline(NestedStackedInline):
+from django import forms
+
+def small_inputs():
+    return { geo_models.CharField: {'widget': forms.TextInput(attrs={'size':'32'})},
+        geo_models.TextField: {'widget': forms.Textarea(attrs={'rows':'3', 'cols':'40'})},
+        geo_models.FloatField: {'widget': forms.TextInput(attrs={'size':'6'})},
+        geo_models.IntegerField: {'widget': forms.NumberInput(attrs={'style':'width:6ch'})},
+        geo_models.PositiveIntegerField: {'widget': forms.NumberInput(attrs={'style':'width:6ch'})},}
+
+class ObservationAnalysisInline(admin.TabularInline):
     model = models.ObservationAnalysis
     fields = (  ('dataset', 'variable_value', 'trend' ),
                 ('y_pres', 'y_past'),
@@ -53,9 +62,11 @@ class ObservationAnalysisInline(NestedStackedInline):
                 ('Delta_I', 'Delta_I_min', 'Delta_I_max'),
                 ('T_return', 'T_return_min', 'T_return_max'), 
                 'comments')
-    extra = 1
+    extra = 0
+    inlines = []
+    formfield_overrides = small_inputs()
 
-class ModelAnalysisInline(NestedStackedInline):
+class ModelAnalysisInline(admin.TabularInline):
     model = models.ModelAnalysis
     fields = (  ('dataset', 'trend' ),
                 ('y_pres', 'y_past'),
@@ -64,11 +75,13 @@ class ModelAnalysisInline(NestedStackedInline):
                 ('Delta_I', 'Delta_I_min', 'Delta_I_max'),
                 ('seasonal_cycle', 'spatial_pattern'), 
                 'comments')
-    extra = 1
+    extra = 0
+    inlines = []
+    formfield_overrides = small_inputs()
 
 class AttributionInline(NestedStackedInline):
     model = models.Attribution
-    extra = 1
+    extra = 0
     fieldsets = ( (None, {'fields': (('description', 'location'),)}),
                   ('Method', {'fields': (('variable', 'distribution', 'statistical_method'),)}),
                   ('Synthesis', {'fields' : ('return_period', ('PR', 'PR_min', 'PR_max'), ('Delta_I', 'Delta_I_min', 'Delta_I_max'), 'conclusions')}),
