@@ -36,8 +36,8 @@ DATABASES = {
         'NAME': '<dbname>',
         'USER': '<dbuser>',
         'PASSWORD': '<psswd>',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'HOST': os.environ.get("DJANGO_HOST", default="localhost"),
+        'PORT': os.environ.get("DJANGO_PORT", default="5432"),
     }
 }
 ```
@@ -56,18 +56,25 @@ installation documentation at
 https://docs.djangoproject.com/en/3.0/ref/contrib/gis/install/.
 
 ## Docker-compose
-There is also a `docker-compose.yml` file that contains a recipe to run the database and web frontend in two separate containers. You will need to download `docker` and `docker-compose` (see [here](https://docs.docker.com/compose/)). After installing these tools, you need to make sure that the host in `project/settings/base.py` is set to `db` and the database user and password match the `POSTGRES_USER` and `POSTGRES_PASSWORD` in the docker compose yaml file, e.g.
-```python
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'exeveda',
-        'USER': 'dbuser',
-        'PASSWORD': 'dbpsswd',
-        'HOST': 'db',
-        'PORT': '5432',
-    }
-}
+There is also a `docker-compose.yml` file that contains a recipe to run the database and web frontend in two separate containers. You will need to download `docker` and `docker-compose` (see [here](https://docs.docker.com/compose/)). After installing these tools, you may want to substitute the postgres database name, user name and password in the docker compose recipe:
+```yaml
+...
+services:
+    db:
+      ...
+      environment:
+        - POSTGRES_DB=<dbname>
+        - POSTGRES_USER=<dbuser>
+        - POSTGRES_PASSWORD=<psswd>
+    ...
+    web:
+      ...
+      environment:
+        ...
+        - DJANGO_DB=<dbname>
+        - DJANGO_USER=<dbuser>
+        - DJANGO_PASSWORD=<psswd>
+        ...
 ```
 Furthermore, one should edit the allowed hosts in the local settings `project/settings/local.py`,
 ```python
@@ -77,7 +84,10 @@ Once this configuration is done, starting the database and web frontend is done 
 ```shell
 $ docker-compose build .
 $ docker-compose up
-$ docker-compose run web python manage.py loaddata stats
+$ docker-compose run web makemigrations
+$ docker-compose run web migrate
+$ docker-compose run web loaddata stats
+$ docker-compose run web runserver
 ```
 
 ## Creating an admin user
@@ -87,7 +97,7 @@ python manage.py createsuperuser
 ```
 and provide the requested user name, email address and password. If you are using the docker images you can do
 ```shell
-$ docker-compose run web python manage.py createsuperuser
+$ docker-compose run web createsuperuser
 ```
 
 ## Wordpress styling

@@ -73,12 +73,12 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'exevada',
-        'USER': 'c3s62admin',
-        'PASSWORD': 'c3s62psswd',
-        'HOST': 'localhost',
-        'PORT': '5432'
+        "ENGINE": os.environ.get("SQL_ENGINE", default="django.contrib.gis.db.backends.postgis"),
+        "NAME": os.environ.get("DJANGO_DB", default="exevada"),
+        "USER": os.environ.get("DJANGO_USER", default="exevada_user"),
+        "PASSWORD": os.environ.get("DJANGO_PASSWORD", default="exevada_password"),
+        "HOST": os.environ.get("DJANGO_HOST", default="localhost"),
+        "PORT": os.environ.get("DJANGO_PORT", default="5432"),
     }
 }
 

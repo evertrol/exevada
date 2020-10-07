@@ -1,10 +1,11 @@
+import os
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '@3t2lcw57u&dy%zg^2p+3p+5(mfw2n#+q_dwh2pt13%mw*@q!('
+SECRET_KEY = os.environ.get("SECRET_KEY", default="foo")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = int(os.environ.get("DEBUG", default=1))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", default="localhost").split(" ")
 
 
 # Internationalization
@@ -20,4 +21,4 @@ USE_L10N = True
 
 USE_TZ = True
 
-WORDPRESS = False
+WORDPRESS = True
