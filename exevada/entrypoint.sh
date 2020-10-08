@@ -14,5 +14,9 @@ fi
 #python manage.py makemigrations exevada
 #python manage.py migrate
 #python manage.py runserver 0.0.0.0:8000
-
-exec python manage.py "$@"
+if [ "$DEPLOY" = "1" ]
+then
+    exec "$@"
+else
+    exec python manage.py "$@"
+fi

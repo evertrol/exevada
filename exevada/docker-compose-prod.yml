@@ -5,31 +5,31 @@ services:
       image: kartoza/postgis
       hostname: db
       environment:
-        - POSTGRES_DB=exevada_prod
+        - POSTGRES_DB=exevada
         - POSTGRES_USER=exevada_user
         - POSTGRES_PASSWORD=exevada_password
       ports:
-        - "5432:5432"
+        - 5432:5432
       volumes:
         - ./postgres-data:/var/lib/postgresql/data
     web:
       build: .
-      command: runserver 0.0.0.0:8000
+      command: gunicorn wsgi:application --bind 0.0.0.0:8000
       volumes:
         - .:/opt/exevada
       environment:
-        - DEBUG=1
-        - DEPLOY=0
-        - SECRET_KEY=foo
-        - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 0.0.0.0 [::1]
-        - DJANGO_DB=exevada_prod
+        - DEBUG=0
+        - DEPLOY=1
+        - SECRET_KEY=change_me
+        - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+        - DJANGO_DB=exevada
         - DJANGO_USER=exevada_user
         - DJANGO_PASSWORD=exevada_password
         - DJANGO_HOST=db
         - DJANGO_PORT=5432
         - DATABASE=postgres
       ports:
-        - "8000:8000"
+        - 8000:8000
       depends_on:
         - db
 
