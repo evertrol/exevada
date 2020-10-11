@@ -1,0 +1,30 @@
+# pull official base image
+FROM python:3
+
+# set environment variables
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE 1
+
+# set working directory
+RUN mkdir /opt/exevada
+WORKDIR /opt/exevada
+
+# copy project
+COPY . /opt/exevada/
+
+# install dependencies
+RUN apt update --yes
+RUN apt-get install binutils libproj-dev gdal-bin musl-dev ncat --yes
+RUN pip install -r requirements.txt
+
+# create the exevadauser user
+RUN useradd -ms /bin/bash exevadauser
+
+# chown all the files to the app user
+RUN chown -R exevadauser:exevadauser /opt/exevada
+
+# change to the app user
+USER exevadauser
+
+# run entrypoint.prod.sh
+ENTRYPOINT ["/opt/exevada/entrypoint.sh"]
