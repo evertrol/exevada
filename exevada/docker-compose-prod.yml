@@ -20,6 +20,7 @@ services:
       volumes:
         - .:/opt/exevada
         - static_volume:/opt/exevada/project/static
+        - media_volume:/opt/exevada/project/media
       environment:
         - DEBUG=0
         - DEPLOY=1
@@ -39,6 +40,7 @@ services:
       build: ./nginx
       volumes:
         - static_volume:/opt/exevada/project/static
+        - media_volume:/opt/exevada/project/media
       ports:
         - 1337:80
       depends_on:
@@ -46,3 +48,4 @@ services:
 volumes:
   postgres_data:
   static_volume:
+  media_volume:
