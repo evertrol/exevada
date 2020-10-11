@@ -26,5 +26,8 @@ RUN chown -R exevadauser:exevadauser /opt/exevada
 # change to the app user
 USER exevadauser
 
+# create static files directory
+# RUN mkdir /home/exevadauser/static
+
 # run entrypoint.prod.sh
 ENTRYPOINT ["/opt/exevada/entrypoint.sh"]
