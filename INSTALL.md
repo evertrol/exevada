@@ -84,14 +84,14 @@ Once this configuration is done, starting the database and web frontend is done 
 ```shell
 $ docker-compose build .
 $ docker-compose up
-$ docker-compose run web makemigrations
-$ docker-compose run web migrate
-$ docker-compose run web loaddata stats
-$ docker-compose run web runserver
+$ docker-compose exec web makemigrations
+$ docker-compose exec web migrate
+$ docker-compose exec web loaddata stats
+$ docker-compose exec web runserver
 ```
 In production mode, it will be necessary to change the secret key to a real secret key, the allowed host to the actual domain and to collect the static files after building the image:
 ```shell
-$ docker-compose run web collectstatic
+$ docker-compose exec web collectstatic
 ```
 For production mode we have created a separate ```docker-compose-prod.yml``` file; to execute the commands above in this mode you will need add ```-f docker-compose-prod.yml``` and run the full command, e.g.
 ```
