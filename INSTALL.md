@@ -89,6 +89,14 @@ $ docker-compose run web migrate
 $ docker-compose run web loaddata stats
 $ docker-compose run web runserver
 ```
+In production mode, it will be necessary to change the secret key to a real secret key, the allowed host to the actual domain and to collect the static files after building the image:
+```shell
+$ docker-compose run web collectstatic
+```
+For production mode we have created a separate ```docker-compose-prod.yml``` file; to execute the commands above in this mode you will need add ```-f docker-compose-prod.yml``` and run the full command, e.g.
+```
+$ docker-compose -f docker-compose-prod.yml run web python manage.py migrate
+```
 
 ## Creating an admin user
 Run the following command:
@@ -105,4 +113,4 @@ Styling of the frontend is provided by the C3S wordpress theme, which you need t
 ```python
 WORDPRESS=True
 ```
-in the local settings file `project/settings/local.py` and creating a symbolic link from `exevada/apps/exevada/static/wp-content` to the installed wordpress `wp-content` folder.
+in the local settings file `project/settings/local.py` and creating a symbolic link from `exevada/apps/exevada/static/wp-content` to the installed wordpress `wp-content` folder. When using docker, uncomment the copy lines in the docker file and make sure the wordpress content is in a folder at build time.
