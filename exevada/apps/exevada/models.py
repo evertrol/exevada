@@ -17,8 +17,7 @@ def event_type_icon_path(instance, filename):
 class EventType(models.Model):
     name = models.CharField(max_length=32, unique=True, help_text="Event type")
     description =  models.TextField(blank=True)
-    icon = models.ImageField(storage=FileSystemStorage(location=settings.STATIC_ROOT), 
-                            upload_to="img/", blank=True)
+    icon = models.ImageField(upload_to="img/", blank=True)
     def __str__(self):
         return self.name
 
@@ -185,8 +184,7 @@ class Event(models.Model):
     people_affected = models.PositiveIntegerField(help_text="Number of people affected", blank=True, null=True)
     economical_loss = models.DecimalField(max_digits=12, decimal_places=2, help_text="Estimated economic loss in Meuro", blank=True, null=True)
     comments = models.TextField(help_text="Remarks", blank=True)
-    image = models.ImageField(storage=FileSystemStorage(location=settings.STATIC_ROOT),
-                                upload_to="img/", blank=True)
+    image = models.ImageField(upload_to="img/", blank=True)
     image_caption = models.TextField(help_text="Image caption", blank=True)
     map_location = models.PointField(help_text="Geographic location of event (for map display)", null=True)
     def __str__(self):
