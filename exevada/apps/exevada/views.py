@@ -7,10 +7,13 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.contrib.gis import geos
+from django.utils.decorators import method_decorator
+from lockdown.decorators import lockdown
 from .models import Event, EventType, Attribution, ObservationDataSet, ModelDataSet, Location
 from project.settings.local import WORDPRESS
 import json
 
+@method_decorator(lockdown(), name='dispatch')
 class Index(ListView):
     template_name = 'exevada/index.html'
     model = Event
@@ -20,6 +23,7 @@ class Index(ListView):
         context['wp_integrate'] = WORDPRESS
         return context
 
+@method_decorator(lockdown(), name='dispatch')
 class EventsView(ListView):
     template_name = 'exevada/events.html'
     model = Event
@@ -36,6 +40,7 @@ class EventsView(ListView):
         context['wp_integrate'] = WORDPRESS
         return context
 
+@method_decorator(lockdown(), name='dispatch')
 class EventView(DetailView):
     template_name = 'exevada/event.html'
     model = Event

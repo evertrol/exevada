@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'leaflet',
     'django_extensions',
     'apps.exevada',
+    'lockdown'
 ]
 
 MIDDLEWARE = [
@@ -45,6 +46,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'lockdown.middleware.LockdownMiddleware'
 ]
 
 ROOT_URLCONF = 'project.urls'
