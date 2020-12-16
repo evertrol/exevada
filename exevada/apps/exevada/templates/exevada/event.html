@@ -195,7 +195,7 @@
                     </tr>
                     {% for analysis in attribution.observations.all %}
                     <tr>
-                        <td><a href=/obsdata/#{{analysis.dataset.name}}">{{analysis.dataset.name}}</a></td>
+                        <td><a href=/obsdata/#{{analysis.dataset.name}}>{{analysis.dataset.name}}</a></td>
                         <td>{{analysis.variable_value}}</td>
                         <td>{{analysis.y_past}}-{{analysis.y_pres}}</td>
                         <td>{{analysis.sigma}}<br>({{analysis.sigma_min|lower_bnd}} ... {{analysis.sigma_max|upper_bnd}})</td>
@@ -211,7 +211,7 @@
                     </tr>
                     {% for analysis in attribution.models.all %}
                     <tr>
-                        <td><a href=/moddata#{{analysis.dataset.model_name}}{{analysis.dataset.experiment}}">{{analysis.dataset.model_name}} {{analysis.dataset.experiment}}</a></td>
+                        <td><a href=/moddata#{{analysis.dataset.model_name}}{{analysis.dataset.experiment}}>{{analysis.dataset.model_name}} {{analysis.dataset.experiment}}</a></td>
                         <td></td>
                         {% if analysis.y_past %}
                         {% if analysis.y_pres %}
