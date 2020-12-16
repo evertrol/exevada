@@ -2,6 +2,7 @@ from django.contrib.gis.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.files.storage import FileSystemStorage
 from django.utils.translation import gettext_lazy as _
+from django.contrib.postgres.fields import ArrayField
 from django.conf import settings
 
 class Location(models.Model):
@@ -96,7 +97,6 @@ class AnalysisBase(SynthesisBase):
     xi_max = models.FloatField(help_text="Shape parameter upper bound", null=True, blank=True)
     y_past = models.PositiveIntegerField(help_text="Starting year of the analysis", null=True, blank=True)
     y_pres = models.PositiveIntegerField(help_text="Ending year of the analysis", null=True, blank=True)
-    trend = models.FloatField(help_text="Calculated trend", null=True, blank=True)
     class Meta:
         abstract = True
 
@@ -142,8 +142,6 @@ class ModelAnalysis(AnalysisBase):
         Reasonable = "reasonable", _("Reasonable")
     attribution = models.ForeignKey("Attribution", on_delete=models.CASCADE, related_name="models")
     dataset = models.ForeignKey("ModelDataSet", on_delete=models.CASCADE)
-    seasonal_cycle = models.CharField(max_length=32, choices=EvaluationOutcome.choices)
-    spatial_pattern = models.CharField(max_length=32, choices=EvaluationOutcome.choices)
     def __str__(self):
         return '-'.join([str(self.attribution), str(self.dataset)])
     class Meta:
@@ -180,12 +178,20 @@ class Event(models.Model):
     start_date = models.DateField(help_text="Event starting date")
     duration = models.PositiveIntegerField(help_text="Duration of the event (nr of days)")
     season = models.CharField(max_length=8, choices=Season.choices, help_text="Season", default=Season.DJJ)
-    deaths = models.PositiveIntegerField(help_text="Number of deaths", blank=True, null=True)
-    people_affected = models.PositiveIntegerField(help_text="Number of people affected", blank=True, null=True)
-    economical_loss = models.DecimalField(max_digits=12, decimal_places=2, help_text="Estimated economic loss in Meuro", blank=True, null=True)
-    comments = models.TextField(help_text="Remarks", blank=True)
+    deaths = models.PositiveIntegerField(help_text="Number of casualties", blank=True, null=True)
+    people_affected = models.PositiveIntegerField(help_text="Number (million) of people affected", blank=True, null=True)
+    economical_loss = models.DecimalField(max_digits=12, decimal_places=2, help_text="Estimated economic loss (in million euro)", blank=True, null=True)
+    socio_economic_impact = models.TextField(help_text="Socio-economic impact", blank=True, null=True, default="")
+    environmental_impact = models.TextField(help_text="Environmental impact", blank=True, null=True, default="")
+#    impact_resources = ArrayField(models.URLField(max_length=512), help_text="Resources for reported impacts", blank=True, default=list)
+    comments = models.TextField(help_text="Description", blank=True)
     image = models.ImageField(upload_to="img/", blank=True)
     image_caption = models.TextField(help_text="Image caption", blank=True)
     map_location = models.PointField(help_text="Geographic location of event (for map display)", null=True)
     def __str__(self):
         return self.name
+
+
+class ImpactResource(models.Model):
+    event = models.ForeignKey("Event", on_delete=models.CASCADE, related_name="impact_resources")
+    url = models.URLField(max_length=512, help_text="Event impact source location url", blank=False)

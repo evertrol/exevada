@@ -71,36 +71,31 @@
         <div class="col-sm-6">
             <div class="alert alert-secondary entry-content" role="alert">                
                 <h2>Impact</h2>
-                <dl class="row">
-                    <dt class="col-sm-4">
-                        <div class="float-right">Casualties:</div>
-                    </dt>
-                    {% if event.deaths != None %}
-                    <dd class="col-sm-8">{{event.deaths}}</dd>
-                    {% else %}
-                    <dd class="col-sm-8">unknown</dd>
-                    {% endif %}
-                </dl>
-                <dl class="row">
-                    <dt class="col-sm-4">
-                        <div class="float-right">Affected:</div>
-                    </dt>
-                    {% if event.people_affected != None %}
-                    <dd class="col-sm-8">{{event.people_affected}}</dd>
-                    {% else %}
-                    <dd class="col-sm-8">unknown</dd>
-                    {% endif %}
-                </dl>
-                <dl class="row">
-                    <dt class="col-sm-4">
-                        <div class="float-right">Economic loss:</div>
-                    </dt>
-                    {% if event.economical_loss != None %}
-                    <dd class="col-sm-8">{{event.economical_loss}} million euro</dd>
-                    {% else %}
-                    <dd class="col-sm-8">unknown</dd>
-                    {% endif %}
-                </dl>
+                <dt>Socio-economic</dt>
+                <p>{{event.socio_economic_impact}}
+                {% if event.deaths != None %}
+                <br>
+                Est. nr. of casualties: {{event.deaths}}
+                {% endif %}
+                {% if event.people_affected != None %}
+                <br>
+                Est. nr. of affected people: {{event.people_affected}} million
+                {% endif %}
+                {% if event.economical_loss != None %}
+                <br>
+                Est. economic loss: {{event.economical_loss}} million euro
+                {% endif %}
+                {% if event.environmental_impact != None %}</p>
+                <dt>Environmental</dt>
+                <p>{{event.environmental_impact}}</p>
+                {% endif %}
+                <dt>Resources</dt>
+                <p>
+                {% for resource in event.impact_resources.all %}
+                {{resource.url|urlize}}
+                <br>
+                {% endfor %}
+                </p>
             </div>
         </div>
     </dl>

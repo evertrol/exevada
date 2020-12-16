@@ -55,7 +55,7 @@ def small_inputs():
 
 class ObservationAnalysisInline(admin.TabularInline):
     model = models.ObservationAnalysis
-    fields = (  ('dataset', 'variable_value', 'trend' ),
+    fields = (  ('dataset', 'variable_value' ),
                 ('y_pres', 'y_past'),
                 ('sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max'), 
                 ('PR', 'PR_min', 'PR_max'), 
@@ -68,12 +68,11 @@ class ObservationAnalysisInline(admin.TabularInline):
 
 class ModelAnalysisInline(admin.TabularInline):
     model = models.ModelAnalysis
-    fields = (  ('dataset', 'trend' ),
+    fields = (  ('dataset' ),
                 ('y_pres', 'y_past'),
                 ('sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max'), 
                 ('PR', 'PR_min', 'PR_max'), 
                 ('Delta_I', 'Delta_I_min', 'Delta_I_max'),
-                ('seasonal_cycle', 'spatial_pattern'), 
                 'comments')
     extra = 0
     inlines = []
@@ -89,14 +88,19 @@ class AttributionInline(NestedStackedInline):
     inlines = [ObservationAnalysisInline, ModelAnalysisInline]
 
 
+class ImpactResourceInline(NestedStackedInline):
+    model = models.ImpactResource
+    extra = 0
+
+
 @admin.register(models.Event)
 class Event(LeafletGeoAdminMixin, NestedModelAdmin):
     fieldsets = ( (None, {'fields': ('name', 'event_type', 'image', 'image_caption', 'comments')}), 
                 ('Event Definition', {'fields' : (('region','map_location'), ('start_date', 'duration', 'season'))}),
-                ('Impact', {'fields' : (('deaths', 'people_affected'), 'economical_loss')}) )
+                ('Impact', {'fields' : (('deaths', 'people_affected', 'economical_loss'), ('socio_economic_impact'), ('environmental_impact'))}) )
                 
     inlines = [
-        AttributionInline,
+        ImpactResourceInline, AttributionInline,
     ]
     def _get_map_widget(self, db_field, widget):
         widget = super()._get_map_widget(db_field, widget)

@@ -34,8 +34,8 @@ INSTALLED_APPS = [
     'django_bootstrap_base_template',
     'leaflet',
     'django_extensions',
-    'apps.exevada',
-    'lockdown'
+    'lockdown',
+    'apps.exevada'
 ]
 
 MIDDLEWARE = [

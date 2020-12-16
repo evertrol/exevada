@@ -6,6 +6,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", default="foo")
 DEBUG = int(os.environ.get("DEBUG", default=1))
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", default="localhost").split(" ")
+ALLOWED_HOSTS = ["127.0.0.1"]
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
@@ -22,6 +23,6 @@ USE_TZ = True
 
 WORDPRESS = True
 
-LOCKDOWN_ENABLED = (os.get("LOCKDOWN_ENABLED", "false").lower() in ["true", "1"])
+LOCKDOWN_ENABLED = (os.environ.get("LOCKDOWN_ENABLED", "false").lower() in ["true", "1"])
 
-LOCKDOWN_PASSWORDS = (os.get("LOCKDOWN_PASSWORD", "letmein"),)
+LOCKDOWN_PASSWORDS = (os.environ.get("LOCKDOWN_PASSWORD", "letmein"),)
