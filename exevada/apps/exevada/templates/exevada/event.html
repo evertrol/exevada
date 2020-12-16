@@ -220,7 +220,7 @@
                     </tr>
                     {% for analysis in attribution.models.all %}
                     <tr>
-                        <td><a href=/moddata#{{analysis.dataset.model_name}}{{analysis.dataset.experiment}}>{{analysis.dataset.model_name}} {{analysis.dataset.experiment}}</a></td>
+                        <td><a href=/moddata/#{{analysis.dataset.model_name}}{{analysis.dataset.experiment}}>{{analysis.dataset.model_name}} {{analysis.dataset.experiment}}</a></td>
                         <td></td>
                         {% if analysis.y_past %}
                         {% if analysis.y_pres %}
