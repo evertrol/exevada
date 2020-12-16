@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'django_bootstrap_base_template',
     'leaflet',
     'django_extensions',
+    'django_archive',
     'lockdown',
     'apps.exevada'
 ]
@@ -77,8 +78,8 @@ DATABASES = {
     'default': {
         "ENGINE": os.environ.get("SQL_ENGINE", default="django.contrib.gis.db.backends.postgis"),
         "NAME": os.environ.get("DJANGO_DB", default="exevada"),
-        "USER": os.environ.get("DJANGO_USER", default="exevada_user"),
-        "PASSWORD": os.environ.get("DJANGO_PASSWORD", default="exevada_password"),
+        "USER": os.environ.get("DJANGO_USER", default="c3s62admin"),
+        "PASSWORD": os.environ.get("DJANGO_PASSWORD", default="c3s62psswd"),        
         "HOST": os.environ.get("DJANGO_HOST", default="localhost"),
         "PORT": os.environ.get("DJANGO_PORT", default="5432"),
     }

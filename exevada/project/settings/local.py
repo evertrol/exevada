@@ -6,7 +6,6 @@ SECRET_KEY = os.environ.get("SECRET_KEY", default="foo")
 DEBUG = int(os.environ.get("DEBUG", default=1))
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", default="localhost").split(" ")
-ALLOWED_HOSTS = ["127.0.0.1"]
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
