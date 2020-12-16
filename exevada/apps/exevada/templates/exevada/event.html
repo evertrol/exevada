@@ -7,6 +7,12 @@
     {% leaflet_css %}
 {% endblock %}
 {% block navbar_collapse_nav %}
+<style>
+    .my-small-btn {
+    width:200px;
+    padding:5px;
+}
+</style>
 <ul class="navbar-nav mr-auto">
     <li class="nav-item">
         <a class="nav-link" href="/events">
@@ -131,9 +137,9 @@
                 <h3>Analysis</h3>
                     <dl class="row">
                         <dt class="col-sm-3">Location:</dt>
-                        <dd class="col-sm-9">{{attribution.location.name}}: {{attribution.location.description}}
+                        <dd class="col-sm-9"><p>{{attribution.location.name}}: {{attribution.location.description}}</p>
                         <!-- Trigger the modal with a button -->
-                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#showloc{{ forloop.counter }}">Show</button>
+                            <button type="button" class="btn btn-secondary my-small-btn" data-toggle="modal" data-target="#showloc{{ forloop.counter }}">Show</button>
                             <!-- Modal -->
                             <div id="showloc{{ forloop.counter }}" href="#showloc{{ forloop.counter }}" class="modal fade" role="dialog">
                             <div class="modal-dialog">
@@ -164,7 +170,7 @@
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                     </div>
                                 </div>
                             </div>
