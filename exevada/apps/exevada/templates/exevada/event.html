@@ -121,6 +121,16 @@
     {% endif %}
     <div class="entry-content">
         <h2>Attribution studies</h2>
+        {% if not event.attributions.all %}
+            {% if event.atrribution_consideration_statement %}
+                <div class="card">
+                    <h5 class="card-header">Attribution consideration statement for {{event.name}}</h5>
+                    <div class="card-body">
+                        <p class="card-text">{{event.atrribution_consideration_statement}}</p>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
     </div>
     <div id="accordion">
         {% for attribution in event.attributions.all %}

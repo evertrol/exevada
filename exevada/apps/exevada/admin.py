@@ -97,11 +97,14 @@ class ImpactResourceInline(NestedStackedInline):
 class Event(LeafletGeoAdminMixin, NestedModelAdmin):
     fieldsets = ( (None, {'fields': ('name', 'event_type', 'image', 'image_caption', 'comments')}), 
                 ('Event Definition', {'fields' : (('region','map_location'), ('start_date', 'duration', 'season'))}),
-                ('Impact', {'fields' : (('deaths', 'people_affected', 'economical_loss'), ('socio_economic_impact'), ('environmental_impact'))}) )
+                ('Impact', {'fields' : (('deaths', 'people_affected', 'economical_loss'), ('socio_economic_impact'), ('environmental_impact'))}),
+                ('Attribution request', {'fields': ('atrribution_consideration_statement',)}) )
                 
     inlines = [
         ImpactResourceInline, AttributionInline,
     ]
+
+
     def _get_map_widget(self, db_field, widget):
         widget = super()._get_map_widget(db_field, widget)
         widget.map_height = "200px"

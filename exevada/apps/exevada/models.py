@@ -189,6 +189,7 @@ class Event(models.Model):
     image = models.ImageField(upload_to="img/", blank=True)
     image_caption = models.TextField(help_text="Image caption", blank=True)
     map_location = models.PointField(help_text="Geographic location of event (for map display)", null=True)
+    atrribution_consideration_statement = models.TextField(help_text="Reason why no attribution studies have been done", blank=True, null=True)
     def __str__(self):
         return self.name
 
