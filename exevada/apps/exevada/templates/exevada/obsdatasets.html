@@ -41,10 +41,10 @@
         <h3 id="{{dataset.name}}">{{dataset.name}}</h3>
         <div>{{dataset.description}}</div>
         {% if dataset.url and dataset.url.strip %}
-            <div>url: <a href={{dataset.url}}>{{dataset.url}}</a></div>
+            <div>url: {{dataset.url|urlize}}</div>
         {% endif %}
         {% if dataset.doi and dataset.doi.strip %}
-            <div>doi: {{dataset.doi}}</div>
+            <div>doi: <a href="http://dx.doi.org/{{dataset.doi}}">{{dataset.doi}}</a></div>
         {% endif %}
         <p>
             <div>
@@ -57,7 +57,7 @@
                                 , <a href={{paper.url}}>{{paper.url}}</a>
                             {% endif %}
                             {% if paper.doi and paper.doi.strip %}
-                                , doi:{{paper.doi}}
+                                , doi: <a href="http://dx.doi.org/{{paper.doi}}">{{paper.doi}}</a>
                             {% endif %}
                         </p>
                     {% endfor %}

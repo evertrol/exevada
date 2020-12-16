@@ -93,6 +93,9 @@
                 <p>
                 {% for resource in event.impact_resources.all %}
                 {{resource.url|urlize}}
+                {% if resource.doi and resource.doi.strip %}
+                    , doi: <a href="http://dx.doi.org/{{resource.doi}}">{{resource.doi}}</a>
+                {% endif %}
                 <br>
                 {% endfor %}
                 </p>
@@ -246,16 +249,16 @@
                 </table>
                 <h3>Conclusion</h3>
                     <p>{{attribution.conclusions}}</p>
-                {% if attribution.journalpapers.ll %}
+                {% if attribution.journalpapers.all %}
                 <h3>Publications</h3>
                     {% for paper in attribution.journalpapers.all %}
                         <p>
                             {{paper.authors}}, {{paper.title}}, {{paper.journal}}, {{paper.issue}} ({{paper.date|date:"M Y"}})
                             {% if paper.url and paper.url.strip %}
-                                , <a href={{paper.url}}>{{paper.url}}</a>
+                                , {{paper.url|urlize}}
                             {% endif %}
                             {% if paper.doi and paper.doi.strip %}
-                                , doi:{{paper.doi}}
+                                , doi: <a href="http://dx.doi.org/{{paper.doi}}">{{paper.doi}}</a>
                             {% endif %}
                         </p>
                     {% endfor %}
@@ -266,17 +269,41 @@
                         <p>
                             {{press_release.authors}}, {{press_release.title}}, {{press_release.medium}} ({{press_release.date|date:"M Y"}})
                             {% if press_release.url and press_release.url.strip %}
-                                , <a href={{press_release.url}}>{{press_release.url}}</a>
+                                , {{press_release.url|urlize}}
                             {% endif %}
                             {% if press_release.doi and press_release.doi.strip %}
-                                , doi:{{press_release.doi}}
+                                , doi: <a href="http://dx.doi.org/{{press_release.doi}}">{{press_release.doi}}</a>
                             {% endif %}
                         </p>
                     {% endfor %}
                 {% endif %}
-                <dl class="row">
-                    <dd class="col-sm-10">For further information, contact {{attribution.contact}} or visit <a href={{attribution.webpage}}>{{attribution.webpage}}</a></dd>
-                </dl>
+                {% if attribution.research_data %}
+                <h3>Research data</h3>
+                {{attribution.research_data|urlize}}
+                {% if attribution.research_data_doi and attribution.research_data_doi.strip %}
+                , doi: <a href="http://dx.doi.org/{{attribution.research_data_doi}}">{{attribution.research_data_doi}}</a>
+                {% endif %}
+                {% endif %}
+                {% if attribution.contact %}
+                    {% if attribution.webpage %}
+                    <br/><br/>
+                    <dl class="row">
+                            <dd class="col-sm-10">For further information, contact {{attribution.contact|urlize}} or visit {{attribution.webpage|urlize}}</dd>
+                        </dl>
+                    {% else %}
+                    <br/><br/>
+                    <dl class="row">
+                            <dd class="col-sm-10">For further information, contact {{attribution.contact|urlize}}</dd>
+                        </dl>
+                    {% endif %}
+                {% else %}
+                    {% if attribution.webpage %}
+                        <br/><br/>
+                        <dl class="row">
+                            <dd class="col-sm-10">For further information, visit {{attribution.webpage|urlize}}</dd>
+                        </dl>
+                    {% endif %}
+                {% endif %}
             </div>
           </div>
         </div>

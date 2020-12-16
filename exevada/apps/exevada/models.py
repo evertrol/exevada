@@ -162,6 +162,8 @@ class Attribution(SynthesisBase):
     webpage = models.URLField(max_length=512, help_text="Relevant web page", blank=True, default="https://attribution.climate.copernicus.eu")
     papers = models.ManyToManyField("JournalPaper", help_text="Reviewed papers describing the attribution", blank=True)
     press_communication = models.ManyToManyField("PressCommunication", help_text="Press communication related to the attribution", blank=True)
+    research_data = models.URLField(max_length=512, help_text="Research material and data location", blank=True, null=True)
+    research_data_doi = models.CharField(max_length=256, help_text="DOI (no URL) of research data", blank=True, null=True)
     def __str__(self):
         return ' '.join([str(self.event), self.description])
 
@@ -183,7 +185,6 @@ class Event(models.Model):
     economical_loss = models.DecimalField(max_digits=12, decimal_places=2, help_text="Estimated economic loss (in million euro)", blank=True, null=True)
     socio_economic_impact = models.TextField(help_text="Socio-economic impact", blank=True, null=True, default="")
     environmental_impact = models.TextField(help_text="Environmental impact", blank=True, null=True, default="")
-#    impact_resources = ArrayField(models.URLField(max_length=512), help_text="Resources for reported impacts", blank=True, default=list)
     comments = models.TextField(help_text="Description", blank=True)
     image = models.ImageField(upload_to="img/", blank=True)
     image_caption = models.TextField(help_text="Image caption", blank=True)
@@ -195,3 +196,4 @@ class Event(models.Model):
 class ImpactResource(models.Model):
     event = models.ForeignKey("Event", on_delete=models.CASCADE, related_name="impact_resources")
     url = models.URLField(max_length=512, help_text="Event impact source location url", blank=False)
+    doi = models.CharField(max_length=256, help_text="DOI (no URL) of impact resource", blank=True, null=True)

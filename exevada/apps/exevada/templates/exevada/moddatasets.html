@@ -42,10 +42,10 @@
         <p><div>{{dataset.model_description}}</div></p>
         <p><div>{{dataset.experiment_description}}</div></p>
         {% if dataset.url and dataset.url.strip %}
-            <div>url: <a href={{dataset.url}}>{{dataset.url}}</a></div>
+            <div>url: {{dataset.url|urlize}}</div>
         {% endif %}
         {% if dataset.doi and dataset.doi.strip %}
-            <div>doi: {{dataset.doi}}</div>
+            <div>doi: <a href="http://dx.doi.org/{{dataset.doi}}">{{dataset.doi}}</a></div>
         {% endif %}
         <p>
             <div>
@@ -55,10 +55,10 @@
                         <p>
                             {{paper.authors}}, {{paper.title}}, {{paper.journal}}, {{paper.issue}} ({{paper.date|date:"M Y"}})
                             {% if paper.url and paper.url.strip %}
-                                , <a href={{paper.url}}>{{paper.url}}</a>
+                                , {{paper.url|urlize}}
                             {% endif %}
                             {% if paper.doi and paper.doi.strip %}
-                                , doi:{{paper.doi}}
+                                , doi: <a href="http://dx.doi.org/{{paper.doi}}">{{paper.doi}}</a>
                             {% endif %}
                         </p>
                     {% endfor %}
