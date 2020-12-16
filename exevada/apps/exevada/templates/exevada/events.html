@@ -179,6 +179,11 @@
                     var evtypejson='{{event_types | safe}}';
                     var evttypes = JSON.parse(evtypejson);
                     var event_type;
+                    const truncate = (str, max = 10) => {
+                        const array = str.trim().split(' ');
+                        const ellipsis = array.length > max ? '...' : '';
+                        return array.slice(0, max).join(' ') + ellipsis;
+                    };
                     for ( var evttype in evttypes ){
                         function outer() {
                             var event_type = evttype
@@ -205,7 +210,7 @@
                             },
                             onEachFeature: function (feature, layer){
                                 layer.bindPopup('<h5>' + feature.properties.name + '</h5>' +
-                                '<p>' + feature.properties.comments + '</p>' + 
+                                '<p>' + truncate(feature.properties.comments,30) + '</p>' + 
                                 '<a href=' + feature.properties.pk + '>Details...</a>');
                             },
                         }).addTo(map);
