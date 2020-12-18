@@ -1,4 +1,7 @@
 {% extends 'exevada/base.html' %}
+{% block extra_header %}
+<title>Listing of the climate model datasets used in the attribution studies by the Copernicus extreme event attribution service</title>
+{% endblock %}
 {% block navbar_collapse_nav %}
 <ul class="navbar-nav mr-auto">
     <li class="nav-item">
@@ -29,9 +32,9 @@
         </a>
     </li>
 </ul>
-<form class="form-inline my-2 my-md-0">
+<!--form class="form-inline my-2 my-md-0">
     <input class="form-control" type="text" placeholder="Search">
-</form>
+</form-->
 {% endblock %}
 {% block container %}
 <h1 class="entry-title">Model simulations</h1>

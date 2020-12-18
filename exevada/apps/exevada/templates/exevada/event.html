@@ -3,6 +3,7 @@
 {% load CL_display %}
 {% load static %}
 {% block extra_header %}
+    <title>This is the detailed extreme event description of {{event.name}} and its associated attribution studies</title>
     {% leaflet_js %}
     {% leaflet_css %}
 {% endblock %}
@@ -42,9 +43,9 @@
         </a>
     </li>
 </ul>
-<form class="form-inline my-2 my-md-0">
+<!--form class="form-inline my-2 my-md-0">
     <input class="form-control" type="text" placeholder="Search">
-</form>
+</form-->
 {% endblock %}
 {% block container %}
 <h1 class="entry-title">{{event.name}} event description</h1>
