@@ -13,3 +13,13 @@ def lower_bnd(value):
 @stringfilter
 def upper_bnd(value):
     return mark_safe("+&#8734;") if value == "None" else value
+
+@register.filter
+@stringfilter
+def none_prmin(value):
+    return "1e-3" if value == "None" else value
+
+@register.filter
+@stringfilter
+def none_prmax(value):
+    return "1e+3" if value == "None" else value

@@ -12,7 +12,29 @@
     .my-small-btn {
     width:200px;
     padding:5px;
-}
+    }
+    .tab-content {
+        max-height: inherit;
+        margin-top: 1.25rem;
+    }
+    .plot_text {
+        font: 14px sans-serif;
+        shape-rendering: crispEdges;
+    }
+    div.tooltip {	
+        position: absolute;
+        text-align: center;
+        width: 120px;
+        height: 60px;
+        padding: 4px;
+        font: 16px;
+        background: white;
+        border: solid;
+        border-width: 1px;
+        border-radius: 8px;
+        border-color:  #941333;
+        pointer-events: none;
+    }
 </style>
 <ul class="navbar-nav mr-auto">
     <li class="nav-item">
@@ -190,80 +212,457 @@
                         <dt class="col-sm-3">Statistical method:</dt>
                         <dd class="col-sm-9">{{attribution.variable}} fitted with {{attribution.distribution}} distribution. {{attribution.statistical_method.description}}</dd>
                     </dl>
-                    <h3>Results</h3>
-                    <table id="evttable" class="table table-bordered">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th scope="col" style="width: 20%">dataset</th>
-                            <th scope="col"></th>
-                            <th scope="col">timespan</th>
-                            {% if attribution.statistical_method.dispersion_fit %}
-                            <th scope="col">&sigma;/&mu;</th>
-                            {% else %}
-                            <th scope="col">&sigma; [{{attribution.variable.unit_symbol|safe}}]</th>
-                            {% endif %}
-                            <th scope="col">&xi;</th>
-                            <th scope="col">PR</th>
-                            <th scope="col">&Delta;I [{{attribution.variable.delta_I_unit_symbol|safe}}]</th>
-                            <th scope="col">T<sub>ret</sub> [yr]</th>
-                        </tr>
-                    </thead>
-                    <tr>
-                        <td colspan=1 style="color:gray; font-weight: bold;"></td>
-                        <td colspan=1 style="color:gray; font-weight: bold;">value [{{attribution.variable.unit_symbol|safe}}]</td>
-                        <td colspan=6 class="text-center" style="color:gray; font-weight: bold;">observations</td>
-                    </tr>
-                    {% for analysis in attribution.observations.all %}
-                    <tr>
-                        <td><a href=/obsdata/#{{analysis.dataset.name}}>{{analysis.dataset.name}}</a></td>
-                        <td>{{analysis.variable_value}}</td>
-                        <td>{{analysis.y_past}}-{{analysis.y_pres}}</td>
-                        <td>{{analysis.sigma}}<br>({{analysis.sigma_min|lower_bnd}} ... {{analysis.sigma_max|upper_bnd}})</td>
-                        <td>{{analysis.xi}}<br>({{analysis.xi_min|lower_bnd}} ... {{analysis.xi_max|upper_bnd}})</td>
-                        <td>{{analysis.PR}}<br>({{analysis.PR_min|lower_bnd}} ... {{analysis.PR_max|upper_bnd}})</sub></span></td>
-                        <td>{{analysis.Delta_I}}<br>({{analysis.Delta_I_min|lower_bnd}} ... {{analysis.Delta_I_max|upper_bnd}})</sub></span></td>
-                        <td>{{analysis.T_return}}<br>({{analysis.T_return_min|lower_bnd}} ... {{analysis.T_return_max|upper_bnd}})</td>
-                    </tr>
-                    {% endfor %}    
-                    <tr>
-                        <td colspan=2 style="color:gray; font-weight: bold;"></td>
-                        <td colspan=6 class="text-center" style="color:gray; font-weight: bold;">model evaluation</td>
-                    </tr>
-                    {% for analysis in attribution.models.all %}
-                    <tr>
-                        <td><a href=/moddata/#{{analysis.dataset.model_name}}{{analysis.dataset.experiment}}>{{analysis.dataset.model_name}} {{analysis.dataset.experiment}}</a></td>
-                        <td></td>
-                        {% if analysis.y_past %}
-                        {% if analysis.y_pres %}
-                        <td>{{analysis.y_past}}-{{analysis.y_pres}}</td>
-                        {% else %}
-                        <td>{{analysis.y_past}} stationary</td>
-                        {% endif %}
-                        {% else %}
-                        {% if analysis.y_pres %}
-                        <td>preind-{{analysis.y_pres}}</td>
-                        {% else %}
-                        <td>stationary</td>
-                        {% endif %}
-                        {% endif %}
-                        <td>{{analysis.sigma}}<br>({{analysis.sigma_min|lower_bnd}} ... {{analysis.sigma_max|upper_bnd}})</td>
-                        <td>{{analysis.xi}}<br>({{analysis.xi_min|lower_bnd}} ... {{analysis.xi_max|upper_bnd}})</td>
-                        <td>{{analysis.PR}}<br>({{analysis.PR_min|lower_bnd}} ... {{analysis.PR_max|upper_bnd}})</sub></span></td>
-                        <td>{{analysis.Delta_I}}<br>({{analysis.Delta_I_min|lower_bnd}} ... {{analysis.Delta_I_max|upper_bnd}})</sub></span></td>
-                        <td>{{attribution.return_period}}</td>
-                    </tr>
-                    {% endfor %}
-                    <tr>
-                        <td colspan=2></td>
-                        <td colspan=6 class="text-center"  style="color:gray; font-weight: bold;">synthesis</td>
-                    </tr>
-                    <tr>
-                        <td colspan=5></td>
-                        <td>{{attribution.PR}}<br>({{attribution.PR_min|lower_bnd}} ... {{attribution.PR_max|upper_bnd}})</td>
-                        <td>{{attribution.Delta_I}}<br>({{attribution.Delta_I_min|lower_bnd}} ... {{attribution.Delta_I_max|upper_bnd}})</sub></span></td>
-                        <td>{{attribution.return_period}}</td>
-                    </tr>
-                </table>
+                <h3>Results</h3>                
+                <div class="container">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#table-{{attribution.pk}}">Table</a></li>
+                    <li class="nav-item"><a class="nav-link"  data-toggle="tab" href="#graph-{{attribution.pk}}">Graph</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div id="table-{{attribution.pk}}" class="tab-pane active fade show">
+                        <table id="evttable" class="table table-bordered">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col" style="width: 20%">dataset</th>
+                                    <th scope="col"></th>
+                                    <th scope="col">timespan</th>
+                                    {% if attribution.statistical_method.dispersion_fit %}
+                                    <th scope="col">&sigma;/&mu;</th>
+                                    {% else %}
+                                    <th scope="col">&sigma; [{{attribution.variable.unit_symbol|safe}}]</th>
+                                    {% endif %}
+                                    <th scope="col">&xi;</th>
+                                    <th scope="col">PR</th>
+                                    <th scope="col">&Delta;I [{{attribution.variable.delta_I_unit_symbol|safe}}]</th>
+                                    <th scope="col">T<sub>ret</sub> [yr]</th>
+                                </tr>
+                            </thead>
+                            <tr>
+                                <td colspan=1 style="color:gray; font-weight: bold;"></td>
+                                <td colspan=1 style="color:gray; font-weight: bold;">value [{{attribution.variable.unit_symbol|safe}}]</td>
+                                <td colspan=6 class="text-center" style="color:gray; font-weight: bold;">observations</td>
+                            </tr>
+                            {% for analysis in attribution.observations.all %}
+                            <tr>
+                                <td><a href=/obsdata/#{{analysis.dataset.name}}>{{analysis.dataset.name}}</a></td>
+                                <td>{{analysis.variable_value}}</td>
+                                <td>{{analysis.y_past}}-{{analysis.y_pres}}</td>
+                                <td>{{analysis.sigma}}<br>({{analysis.sigma_min|lower_bnd}} ... {{analysis.sigma_max|upper_bnd}})</td>
+                                <td>{{analysis.xi}}<br>({{analysis.xi_min|lower_bnd}} ... {{analysis.xi_max|upper_bnd}})</td>
+                                <td>{{analysis.PR}}<br>({{analysis.PR_min|lower_bnd}} ... {{analysis.PR_max|upper_bnd}})</sub></span></td>
+                                <td>{{analysis.Delta_I}}<br>({{analysis.Delta_I_min|lower_bnd}} ... {{analysis.Delta_I_max|upper_bnd}})</sub></span></td>
+                                <td>{{analysis.T_return}}<br>({{analysis.T_return_min|lower_bnd}} ... {{analysis.T_return_max|upper_bnd}})</td>
+                            </tr>
+                            {% endfor %}    
+                            <tr>
+                                <td colspan=2 style="color:gray; font-weight: bold;"></td>
+                                <td colspan=6 class="text-center" style="color:gray; font-weight: bold;">model evaluation</td>
+                            </tr>
+                            {% for analysis in attribution.models.all %}
+                            <tr>
+                                <td><a href=/moddata/#{{analysis.dataset.model_name}}{{analysis.dataset.experiment}}>{{analysis.dataset.model_name}} {{analysis.dataset.experiment}}</a></td>
+                                <td></td>
+                                {% if analysis.y_past %}
+                                {% if analysis.y_pres %}
+                                <td>{{analysis.y_past}}-{{analysis.y_pres}}</td>
+                                {% else %}
+                                <td>{{analysis.y_past}} stationary</td>
+                                {% endif %}
+                                {% else %}
+                                {% if analysis.y_pres %}
+                                <td>preind-{{analysis.y_pres}}</td>
+                                {% else %}
+                                <td>stationary</td>
+                                {% endif %}
+                                {% endif %}
+                                <td>{{analysis.sigma}}<br>({{analysis.sigma_min|lower_bnd}} ... {{analysis.sigma_max|upper_bnd}})</td>
+                                <td>{{analysis.xi}}<br>({{analysis.xi_min|lower_bnd}} ... {{analysis.xi_max|upper_bnd}})</td>
+                                <td>{{analysis.PR}}<br>({{analysis.PR_min|lower_bnd}} ... {{analysis.PR_max|upper_bnd}})</sub></span></td>
+                                <td>{{analysis.Delta_I}}<br>({{analysis.Delta_I_min|lower_bnd}} ... {{analysis.Delta_I_max|upper_bnd}})</sub></span></td>
+                                <td>{{attribution.return_period}}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td colspan=2></td>
+                                <td colspan=6 class="text-center"  style="color:gray; font-weight: bold;">synthesis</td>
+                            </tr>
+                            <tr>
+                                <td colspan=5></td>
+                                <td>{{attribution.PR}}<br>({{attribution.PR_min|lower_bnd}} ... {{attribution.PR_max|upper_bnd}})</td>
+                                <td>{{attribution.Delta_I}}<br>({{attribution.Delta_I_min|lower_bnd}} ... {{attribution.Delta_I_max|upper_bnd}})</sub></span></td>
+                                <td>{{attribution.return_period}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="graph-{{attribution.pk}}" class="tab-pane fade">
+                        <p>Synthesis graphs for {{attribution.location.name}}</p>
+                        <div id="synthesis-{{attribution.pk}}"></div>
+                        <script src="https://d3js.org/d3.v4.js"></script>
+                        <script>
+                            var data = [];
+                            {% for analysis in attribution.observations.all %}
+                                data.push({label: "{{analysis.dataset.name}}", 
+                                            mean: {{analysis.PR}}, 
+                                            min: {{analysis.PR_min|none_prmin}}, 
+                                            max: {{analysis.PR_max|none_prmax}},
+                                            ci: $('<textarea/>').html("({{analysis.PR_min|lower_bnd}} ... {{analysis.PR_max|upper_bnd}})").text()});
+                            {% endfor %}
+                            {% for analysis in attribution.models.all %}
+                                data.push({label: "{{analysis.dataset.model_name}}", 
+                                            mean: {{analysis.PR}}, 
+                                            min: {{analysis.PR_min|none_prmin}}, 
+                                            max: {{analysis.PR_max|none_prmax}},
+                                            ci: $('<textarea/>').html("({{analysis.PR_min|lower_bnd}} ... {{analysis.PR_max|upper_bnd}})").text()});
+                            {% endfor %}
+                            data = data.reverse();
+                            synth_data = [{ mean: {{attribution.PR}}, 
+                                            min: {{attribution.PR_min|none_prmin}}, 
+                                            max: {{attribution.PR_max|none_prmax}},
+                                            ci: $('<textarea/>').html("({{attribution.PR_min|lower_bnd}} ... {{attribution.PR_max|upper_bnd}})").text()}];
+                            
+                            make_synthesis_plot(data, synth_data, true, "Probability ratio synthesis", "PR");
+
+                            var data = [];
+                            {% for analysis in attribution.observations.all %}
+                                data.push({label: "{{analysis.dataset.name}}", 
+                                            mean: {{analysis.Delta_I}}, 
+                                            min: {{analysis.Delta_I_min|none_prmin}}, 
+                                            max: {{analysis.Delta_I_max|none_prmax}},
+                                            ci: $('<textarea/>').html("({{analysis.Delta_I_min|lower_bnd}} ... {{analysis.Delta_I_max|upper_bnd}})").text()});
+                            {% endfor %}
+                            {% for analysis in attribution.models.all %}
+                                data.push({label: "{{analysis.dataset.model_name}}", 
+                                            mean: {{analysis.Delta_I}}, 
+                                            min: {{analysis.Delta_I_min|none_prmin}}, 
+                                            max: {{analysis.Delta_I_max|none_prmax}},
+                                            ci: $('<textarea/>').html("({{analysis.Delta_I_min|lower_bnd}} ... {{analysis.Delta_I_max|upper_bnd}})").text()});
+                            {% endfor %}
+                            data = data.reverse();
+                            synth_data = [{  mean: {{attribution.Delta_I}}, 
+                                            min: {{attribution.Delta_I_min|none_prmin}}, 
+                                            max: {{attribution.Delta_I_max|none_prmax}},
+                                            ci: $('<textarea/>').html("({{attribution.Delta_I_min|lower_bnd}} ... {{attribution.Delta_I_max|upper_bnd}})").text()}];
+
+                            var xlabel = $('<textarea/>').html("&Delta;I [{{attribution.variable.delta_I_unit_symbol|safe}}]").text();
+                            make_synthesis_plot(data, synth_data, false, "Intensity change synthesis", xlabel);
+
+                            function make_synthesis_plot(data, synth_data, logscale, title, symbol){
+                                var margin = {
+                                            top: 40,
+                                            right: 60,
+                                            bottom: 60,
+                                            left: 100
+                                        },
+                                width = 500 - margin.left - margin.right,
+                                height = Math.max(75 * data.length, 400) - margin.top - margin.bottom;
+                                var div = d3.select("body").append("div")	
+                                            .attr("class", "tooltip")				
+                                            .style("opacity", 0);
+                                var svg = d3.select("#synthesis-{{attribution.pk}}")
+                                .append("svg")
+                                .attr("width", width + margin.left + margin.right)
+                                .attr("height", height + margin.top + margin.bottom);
+                                if(logscale){
+                                    var xScale = d3.scaleLog()
+                                    .range([width, 0])
+                                    .domain([d3.max(data, function(d) {
+                                                        return d.max
+                                                    }), 
+                                            d3.min(data, function(d) {
+                                                        return d.min
+                                                    }) / 10]);
+                                }
+                                else{
+                                    var xScale = d3.scaleLinear()
+                                    .range([width, 0])
+                                    .domain([d3.max(data, function(d) {
+                                                        return d.max * 1.2
+                                                    }), 
+                                            d3.min(data, function(d) {
+                                                        return d.min * 0.8
+                                                    })]);
+                                }
+
+
+                                var yScale = d3.scaleBand()
+                                .range([height, 0])
+                                .padding(0.1)
+                                .domain(data.map(function(d) {
+                                    return d.label
+                                }));
+
+    //                            var superscript = "⁰¹²³⁴⁵⁶⁷⁸⁹",
+                                formatPower = function(c) { return c > 0 ? "1e+" + c:"1e" + c  },
+                                formatTick = function(d) { return formatPower(Math.round(Math.log(d) / Math.LN10)); };
+                                if(logscale){
+                                    var xAxis = d3.axisBottom(xScale).ticks(4, formatTick);
+                                }
+                                else{
+                                    var xAxis = d3.axisBottom(xScale).ticks(4);
+                                }
+                                var yAxis = d3.axisLeft(yScale)
+
+                                var gX = svg.append("g")
+                                .attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")")
+                                .attr("class", "plot_text")
+                                .call(xAxis);
+
+                                var gY = svg.append("g")
+                                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                                .attr("class", "plot_text")
+                                .call(yAxis)
+                                .selectAll("text")
+                                .attr("class", "cateName")
+                                .style("text-anchor", "start")
+                                .call(wrapText, margin.left - 20, margin);
+
+                                svg.append("text")
+                                .attr("text-anchor", "middle")
+                                .style("font-size", "16px")
+                                .attr("dy", 0.5 * margin.top)
+                                .attr("dx", width/2)
+                                .text(title);
+
+                                svg.append("text")
+                                .attr("x", margin.left + width + 15)
+                                .attr("y", margin.top + height + 7)
+                                .style("text-anchor", "left")
+                                .style("font-size", "16px")
+                                .text(symbol);
+                                
+                                var vline = svg.selectAll(".synth.mean")
+                                .data(synth_data)
+                                .enter()
+                                .append("line")
+                                .attr("class", "synth-mean")
+                                .attr("stroke", "black")
+                                .attr("stroke-width", 3)
+                                .style("stroke-dasharray", ("4, 3"))
+                                .attr("x1", function(d) {
+                                    return xScale(d.mean)
+                                })
+                                .attr("y1", 0)
+                                .attr("x2", function(d) {
+                                        return xScale(d.mean)
+                                })
+                                .attr("y2", height)
+                                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                                svg.selectAll(".synth.mean")
+                                .data(synth_data)
+                                .enter()
+                                .append("rect")
+                                .attr("class", "synth-CI")
+                                .attr("fill", "#941333")
+                                .style("opacity", 0.1)
+                                .attr("stroke", "none")
+                                .attr("x", function(d) {
+                                    return xScale(d.min)
+                                })
+                                .attr("width", function(d) {
+                                    return xScale(d.max) - xScale(d.min)
+                                })
+                                .attr("y", function(d) {
+                                    return 0
+                                })
+                                .attr("height", function(d) {
+                                    return height
+                                })
+                                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                                var bandwidth = Math.min(yScale.bandwidth(), 60);
+
+                                var boxes = svg.selectAll("foo")
+                                .data(data)
+                                .enter()
+                                .append("rect")
+                                .attr("fill", "#941333")
+                                .attr("stroke", "none")
+                                .attr("y", function(d) {
+                                    return yScale(d.label) + 0.5 * yScale.bandwidth() - bandwidth/12
+                                })
+                                .attr("height", bandwidth/6)
+                                .attr("x", function(d) {
+                                    return xScale(d.min)
+                                })
+                                .attr("width", function(d) {
+
+                                    return xScale(d.max) - xScale(d.min)
+                                })
+                                .on("mouseover", makeToolTip)
+                                .on("mouseout", function(d) {		
+                                    div.transition()		
+                                    .duration(500)		
+                                    .style("opacity", 0);	
+                                })
+                                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                                var circles = svg.selectAll("foo")
+                                .data(data)
+                                .enter()
+                                .append("circle")
+                                .attr("stroke", "#941333")
+                                .attr("stroke-width", 2)
+                                .attr("fill", "grey")
+                                .attr("cx", function(d) {
+                                    return xScale(d.mean)
+                                })
+                                .attr("cy", function(d) {
+                                    return yScale(d.label) + 0.5 * yScale.bandwidth()
+                                })
+                                .attr("r", function(d) {
+                                    return bandwidth/6
+                                })
+                                .on("mouseover", makeToolTip)
+                                .on("mouseout", function(d) {		
+                                    div.transition()		
+                                    .duration(500)		
+                                    .style("opacity", 0);	
+                                })
+                                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                                lwidth = 4;
+
+                                var lines = svg.selectAll("foo")
+                                .data(data)
+                                .enter()
+                                .append("line")
+                                .attr("stroke", "#941333")
+                                .attr("stroke-width", 2)
+                                .attr("y1", function(d) {
+                                    if(d.min == 1e-3)
+                                    {
+                                        return yScale(d.label)
+                                    }
+                                    return yScale(d.label) + 0.5 * yScale.bandwidth() - bandwidth/lwidth
+                                })
+                                .attr("y2", function(d) {
+                                    if(d.min == 1e-3)
+                                    {
+                                        return yScale(d.label)
+                                    }
+                                    return yScale(d.label) + 0.5 * yScale.bandwidth() + bandwidth/lwidth
+                                })
+                                .attr("x1", function(d) {
+                                    return xScale(d.min)
+                                })
+                                .attr("x2", function(d) {
+                                    return xScale(d.min)
+                                })
+                                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                                var lines = svg.selectAll("foo")
+                                .data(data)
+                                .enter()
+                                .append("line")
+                                .attr("stroke", "#941333")
+                                .attr("stroke-width", 2)
+                                .attr("y1", function(d) {
+                                    if(d.max == 1e+3)
+                                    {
+                                        return yScale(d.label) + bandwidth/2
+                                    }
+                                    return yScale(d.label) + 0.5 * yScale.bandwidth() - bandwidth/lwidth
+                                })
+                                .attr("y2", function(d) {
+                                    if(d.max == 1e+3)
+                                    {
+                                        return yScale(d.label) + bandwidth/2
+                                    }
+                                    return yScale(d.label) + 0.5 * yScale.bandwidth() + bandwidth/lwidth
+                                })
+                                .attr("x1", function(d) {
+                                    return xScale(d.max)
+                                })
+                                .attr("x2", function(d) {
+                                    return xScale(d.max)
+                                })
+                                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                                function makeToolTip(d){
+                                div.transition()		
+                                    .duration(200)		
+                                    .style("opacity", .9);		
+                                div	.html(d.mean + " " + d.ci + "<br/>")	
+                                    .style("left", (d3.event.pageX) + "px")		
+                                    .style("top", (d3.event.pageY - 28) + "px");	
+                                }
+                            }
+
+                            function wrapText(text, width, margin) {
+                                text.each(function() {
+                                    var text = d3.select(this),
+                                    textContent = text.text(),
+                                    tempWord = addBreakSpace(textContent).split(/\s+/),
+                                    x = text.attr('x'),
+                                    y = text.attr('y'),
+                                    dy = parseFloat(text.attr('dy') || 0),
+                                    tspan = text.text(null).append('tspan').attr('x', x).attr('y', y).attr('dy', dy + 'em');
+                                    for (var i = 0; i < tempWord.length; i++) {
+                                    tempWord[i] = calHyphen(tempWord[i]);
+                                    }
+                                    textContent = tempWord.join(" ");
+                                    var words = textContent.split(/\s+/).reverse(),
+                                    word,
+                                    line = [],
+                                    lineNumber = 0,
+                                    lineHeight = 1.1, // ems
+                                    spanContent,
+                                    breakChars = ['/', '&', '-'];
+                                    nchars = 0;
+                                    while (word = words.pop()) {
+                                        line.push(word);
+                                        tspan.text(line.join(' '));
+                                        nchars += word.length
+                                        if (nchars * 10 > width && line.length > 1) {
+                                            line.pop();
+                                            spanContent = line.join(' ');
+                                            breakChars.forEach(char => {
+                                            // Remove spaces trailing breakChars that were added above
+                                            spanContent = spanContent.replace(char + ' ', char);
+                                            });
+                                            tspan.text(spanContent);
+                                            line = [word];
+                                            tspan = text.append('tspan').attr('x', x).attr('y', y).attr('dy', lineHeight+'em').text(word);
+                                            nchars = 0;
+                                        }
+                                    }
+                                    var emToPxRatio = parseInt(window.getComputedStyle(text._groups[0][0]).fontSize.slice(0, -2));
+                                    text.attr("transform", "translate(-" + (margin.left - 13) + ", -" + lineHeight + ")");
+
+                                    function calHyphen(word) {
+                                    tspan.text(word);
+                                    if (tspan.node().getComputedTextLength() > width) {
+                                        var chars = word.split('');
+                                        var asword = "";
+                                        for (var i = 0; i < chars.length; i++) {
+                                        asword += chars[i];
+                                        tspan.text(asword);
+                                        if (tspan.node().getComputedTextLength() > width) {
+                                            if (chars[i - 1] !== "-") {
+                                            word = word.slice(0, i - 1) + "- " + calHyphen(word.slice(i - 1));
+                                            }
+                                            i = chars.length;
+                                        }
+                                        }
+                                    }
+                                    return word;
+                                    }
+                                });
+
+                                function addBreakSpace(inputString) {
+                                    var breakChars = ['/', '&', '-']
+                                    breakChars.forEach(char => {
+                                    // Add a space after each break char for the function to use to determine line breaks
+                                    inputString = inputString.replace(char, char + ' ');
+                                    });
+                                    return inputString;
+                                }
+                                }
+                        </script>
+                    </div>
+                </div>
+                </div>
                 <h3>Conclusion</h3>
                     <p>{{attribution.conclusions}}</p>
                 {% if attribution.journalpapers.all %}
