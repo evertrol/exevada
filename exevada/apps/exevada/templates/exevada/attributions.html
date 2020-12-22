@@ -170,8 +170,16 @@
             <td>{{attribution.event.name}}</td>
             <td><a href="/events/{{attribution.event.pk}}#{{attribution.description}}">{{attribution.description}}</a></td>
             <td>{{attribution.location.name}}</td>
+            {% if attribution.PR %}
             <td>{{attribution.PR}} ({{attribution.PR_min|lower_bnd}}...{{attribution.PR_max|upper_bnd}})</td>
+            {% else %}
+            <td>inconclusive</td>
+            {% endif %}
+            {% if attribution.Delta_I %}
             <td>{{attribution.Delta_I}} ({{attribution.Delta_I_min|lower_bnd}}...{{attribution.Delta_I_max|upper_bnd}}) {{attribution.variable.delta_I_unit_symbol|safe}}</sub></span></td>
+            {% else %}
+            <td>inconclusive</td>
+            {% endif %}
             <td>{{attribution.return_period}}</td>
         </tr>
         {% endfor %}

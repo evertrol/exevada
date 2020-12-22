@@ -23,3 +23,8 @@ def none_prmin(value):
 @stringfilter
 def none_prmax(value):
     return "1e+3" if value == "None" else value
+
+@register.filter
+@stringfilter
+def none_null(value):
+    return "null" if value == "None" else value
