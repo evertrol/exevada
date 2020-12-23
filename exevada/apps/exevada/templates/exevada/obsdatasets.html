@@ -38,10 +38,10 @@
 {% endblock %}
 {% block container %}
 <h1 class="entry-title">Observation Datasets</h1>
-    {% for dataset in object_list %}
+    {% for dataset in object_list|dictsort:"name" %}
     <div class="pt-5 entry-content">
     <p>
-        <h3 id="{{dataset.name}}">{{dataset.name}}</h3>
+        <h3 id="{{dataset.pk}}">{{dataset.name}}</h3>
         <div>{{dataset.description}}</div>
         {% if dataset.url and dataset.url.strip %}
             <div>url: {{dataset.url|urlize}}</div>

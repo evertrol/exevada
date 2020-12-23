@@ -244,7 +244,7 @@
                             </tr>
                             {% for analysis in attribution.observations.all %}
                             <tr>
-                                <td><a href=/obsdata/#{{analysis.dataset.name}}>{{analysis.dataset.name}}</a></td>
+                                <td><a href=/obsdata/#{{analysis.dataset.pk}}>{{analysis.dataset.name}}</a></td>
                                 <td>{{analysis.variable_value}}</td>
                                 <td>{{analysis.y_past}}-{{analysis.y_pres}}</td>
                                 <td>{{analysis.sigma}}<br>({{analysis.sigma_min|lower_bnd}} ... {{analysis.sigma_max|upper_bnd}})</td>
@@ -260,7 +260,7 @@
                             </tr>
                             {% for analysis in attribution.models.all %}
                             <tr>
-                                <td><a href=/moddata/#{{analysis.dataset.model_name}}{{analysis.dataset.experiment}}>{{analysis.dataset.model_name}} {{analysis.dataset.experiment}}</a></td>
+                                <td><a href=/moddata/#{{analysis.dataset.pk}}>{{analysis.dataset.model_name}} {{analysis.dataset.experiment}}</a></td>
                                 <td></td>
                                 {% if analysis.y_past %}
                                 {% if analysis.y_pres %}
@@ -309,26 +309,30 @@
                         <script>
                             var data = [];
                             {% for analysis in attribution.observations.all %}
-                                data.push({label: "{{analysis.dataset.name}}", 
-                                            mean: {{analysis.PR}}, 
-                                            min: {{analysis.PR_min|none_prmin}}, 
-                                            max: {{analysis.PR_max|none_prmax}},
-                                            obs: true,
-                                            ci: $('<textarea/>').html("({{analysis.PR_min|lower_bnd}} ... {{analysis.PR_max|upper_bnd}})").text()});
+                                {% if analysis.PR is not None %}
+                                    data.push({ label: "{{analysis.dataset.name}}", 
+                                                mean: {{analysis.PR}}, 
+                                                min: {{analysis.PR_min|default_if_none:"null"}}, 
+                                                max: {{analysis.PR_max|default_if_none:"null"}},
+                                                color: "darkblue",
+                                                ci: $('<textarea/>').html("({{analysis.PR_min|lower_bnd}} ... {{analysis.PR_max|upper_bnd}})").text()});
+                                {% endif %}
                             {% endfor %}
                             {% for analysis in attribution.models.all %}
-                                data.push({label: "{{analysis.dataset.model_name}}", 
-                                            mean: {{analysis.PR}}, 
-                                            min: {{analysis.PR_min|none_prmin}}, 
-                                            max: {{analysis.PR_max|none_prmax}},
-                                            obs: false,
-                                            ci: $('<textarea/>').html("({{analysis.PR_min|lower_bnd}} ... {{analysis.PR_max|upper_bnd}})").text()});
+                                {% if analysis.PR is not None %}
+                                    data.push({ label: "{{analysis.dataset.model_name}}", 
+                                                mean: {{analysis.PR}}, 
+                                                min: {{analysis.PR_min|default_if_none:"null"}}, 
+                                                max: {{analysis.PR_max|default_if_none:"null"}},
+                                                color: "#941333",
+                                                ci: $('<textarea/>').html("({{analysis.PR_min|lower_bnd}} ... {{analysis.PR_max|upper_bnd}})").text()});
+                                {% endif %}
                             {% endfor %}
                             data = data.reverse();
-                            synth_data = [{ mean: {{attribution.PR}}, 
-                                            min: {{attribution.PR_min|none_prmin}}, 
-                                            max: {{attribution.PR_max|none_prmax}},
-                                            obs: false,
+                            synth_data = [{ mean: {{attribution.PR|default_if_none:"null"}}, 
+                                            min: {{attribution.PR_min|default_if_none:"null"}},
+                                            max: {{attribution.PR_max|default_if_none:"null"}},
+                                            color: "#941333",
                                             ci: $('<textarea/>').html("({{attribution.PR_min|lower_bnd}} ... {{attribution.PR_max|upper_bnd}})").text()}];
                             
                             make_synthesis_plot(data, synth_data, true, "Probability ratio synthesis", "PR");
@@ -336,35 +340,33 @@
                             var data = [];
                             {% for analysis in attribution.observations.all %}
                                 data.push({label: "{{analysis.dataset.name}}", 
-                                            mean: {{analysis.Delta_I}}, 
-                                            min: {{analysis.Delta_I_min|none_prmin}}, 
-                                            max: {{analysis.Delta_I_max|none_prmax}},
-                                            obs: true,
+                                            mean: {{analysis.Delta_I|default_if_none:"null"}}, 
+                                            min: {{analysis.Delta_I_min|default_if_none:"null"}}, 
+                                            max: {{analysis.Delta_I_max|default_if_none:"null"}},
+                                            color: "darkblue",
                                             ci: $('<textarea/>').html("({{analysis.Delta_I_min|lower_bnd}} ... {{analysis.Delta_I_max|upper_bnd}})").text()});
                             {% endfor %}
                             {% for analysis in attribution.models.all %}
                                 data.push({label: "{{analysis.dataset.model_name}}", 
-                                            mean: {{analysis.Delta_I}}, 
-                                            min: {{analysis.Delta_I_min|none_prmin}}, 
-                                            max: {{analysis.Delta_I_max|none_prmax}},
-                                            obs: false,
+                                            mean: {{analysis.Delta_I|default_if_none:"null"}}, 
+                                            min: {{analysis.Delta_I_min|default_if_none:"null"}}, 
+                                            max: {{analysis.Delta_I_max|default_if_none:"null"}},
+                                            color: "#941333",
                                             ci: $('<textarea/>').html("({{analysis.Delta_I_min|lower_bnd}} ... {{analysis.Delta_I_max|upper_bnd}})").text()});
                             {% endfor %}
                             data = data.reverse();
-                            synth_data = [{  mean: {{attribution.Delta_I}}, 
-                                            min: {{attribution.Delta_I_min|none_prmin}}, 
-                                            max: {{attribution.Delta_I_max|none_prmax}},
-                                            obs: false,
+                            synth_data = [{  mean: {{attribution.Delta_I|default_if_none:"null"}}, 
+                                            min: {{attribution.Delta_I_min|default_if_none:"null"}}, 
+                                            max: {{attribution.Delta_I_max|default_if_none:"null"}},
+                                            color: "#941333",
                                             ci: $('<textarea/>').html("({{attribution.Delta_I_min|lower_bnd}} ... {{attribution.Delta_I_max|upper_bnd}})").text()}];
 
                             var xlabel = $('<textarea/>').html("&Delta;I [{{attribution.variable.delta_I_unit_symbol|safe}}]").text();
                             make_synthesis_plot(data, synth_data, false, "Intensity change synthesis", xlabel);
 
-                            function get_color(d){
-                                return d.obs ? "darkblue" : "#941333";
-                            }
 
                             function make_synthesis_plot(data, synth_data, logscale, title, symbol){
+
                                 var margin = {
                                             top: 40,
                                             right: 60,
@@ -373,32 +375,45 @@
                                         },
                                 width = 500 - margin.left - margin.right,
                                 height = Math.max(75 * data.length, 400) - margin.top - margin.bottom;
-                                var div = d3.select("body").append("div")	
-                                            .attr("class", "tooltip")				
+
+                                var div = d3.select("body").append("div")
+                                            .attr("class", "tooltip")
                                             .style("opacity", 0);
+
                                 var svg = d3.select("#synthesis-{{attribution.pk}}")
                                 .append("svg")
                                 .attr("width", width + margin.left + margin.right)
                                 .attr("height", height + margin.top + margin.bottom);
+
+                                var minval = d3.min(data.concat(synth_data), function(d) { 
+                                    return d.min == null? (d.mean == null? Infinity : d.mean) : d.min 
+                                });
+                                var maxval = d3.max(data.concat(synth_data), function(d) { 
+                                    return d.max == null? (d.mean == null? -Infinity : d.mean) : d.max 
+                                });
+                                if(minval == null || minval == Infinity || maxval == null || maxval == -Infinity)
+                                {
+                                    return;
+                                }
+
                                 if(logscale){
+
+                                    var range = maxval/minval;
+                                    minval = minval / Math.pow(range, 0.3);
+                                    maxval = maxval * Math.pow(range, 0.3);
+                                    
                                     var xScale = d3.scaleLog()
                                     .range([width, 0])
-                                    .domain([Math.pow(d3.max(data, function(d) {
-                                                        return d.max
-                                                    }), 1.0),
-                                            Math.pow(d3.min(data, function(d) {
-                                                        return d.min
-                                                    }), 0.2)]);
+                                    .domain([maxval, minval]);
                                 }
                                 else{
+                                    var range = maxval - minval;
+                                    minval = minval - 0.3 * range;
+                                    maxval = maxval + 0.3 * range;
+
                                     var xScale = d3.scaleLinear()
                                     .range([width, 0])
-                                    .domain([d3.max(data, function(d) {
-                                                        return d.max * 1.2
-                                                    }), 
-                                            d3.min(data, function(d) {
-                                                        return d.min * 0.8
-                                                    })]);
+                                    .domain([maxval, minval]);
                                 }
 
                                 var yScale = d3.scaleBand()
@@ -447,7 +462,7 @@
                                 .style("font-size", "16px")
                                 .text(symbol);
                                 
-                                if(synth_data[0].mean){
+                                if(synth_data[0].mean != null){
                                     var vline = svg.selectAll(".synth.mean")
                                     .data(synth_data)
                                     .enter()
@@ -471,14 +486,14 @@
                                     .enter()
                                     .append("rect")
                                     .attr("class", "synth-CI")
-                                    .attr("fill", "#941333")
+                                    .attr("fill", function(d) { return d.color })
                                     .style("opacity", 0.1)
                                     .attr("stroke", "none")
                                     .attr("x", function(d) {
-                                        return xScale(d.min)
+                                        return xScale(d.min == null? minval : d.min)
                                     })
                                     .attr("width", function(d) {
-                                        return xScale(d.max) - xScale(d.min)
+                                        return xScale(d.max == null? maxval : d.max) - xScale(d.min == null? minval : d.min)
                                     })
                                     .attr("y", function(d) {
                                         return 0
@@ -495,18 +510,18 @@
                                 .data(data)
                                 .enter()
                                 .append("rect")
-                                .attr("fill", get_color)
+                                .attr("fill", function(d) { return d.color })
                                 .attr("stroke", "none")
                                 .attr("y", function(d) {
                                     return yScale(d.label) + 0.5 * yScale.bandwidth() - bandwidth/12
                                 })
                                 .attr("height", bandwidth/6)
                                 .attr("x", function(d) {
-                                    return xScale(d.min)
+                                    return xScale(d.min == null? minval : d.min)
                                 })
                                 .attr("width", function(d) {
 
-                                    return xScale(d.max) - xScale(d.min)
+                                    return xScale(d.max == null? maxval : d.max) - xScale(d.min == null? minval : d.min)
                                 })
                                 .on("mouseover", makeToolTip)
                                 .on("mouseout", function(d) {		
@@ -520,7 +535,7 @@
                                 .data(data)
                                 .enter()
                                 .append("circle")
-                                .attr("stroke", get_color)
+                                .attr("stroke",  function(d) { return d.color })
                                 .attr("stroke-width", 2)
                                 .attr("fill", "grey")
                                 .attr("cx", function(d) {
@@ -546,27 +561,27 @@
                                 .data(data)
                                 .enter()
                                 .append("line")
-                                .attr("stroke", get_color)
+                                .attr("stroke", function(d) { return d.color })
                                 .attr("stroke-width", 2)
                                 .attr("y1", function(d) {
-                                    if(d.min == 1e-3)
+                                    if(d.min == null)
                                     {
                                         return yScale(d.label)
                                     }
                                     return yScale(d.label) + 0.5 * yScale.bandwidth() - bandwidth/lwidth
                                 })
                                 .attr("y2", function(d) {
-                                    if(d.min == 1e-3)
+                                    if(d.min == null)
                                     {
                                         return yScale(d.label)
                                     }
                                     return yScale(d.label) + 0.5 * yScale.bandwidth() + bandwidth/lwidth
                                 })
                                 .attr("x1", function(d) {
-                                    return xScale(d.min)
+                                    return xScale(d.min == null? minval : d.min)
                                 })
                                 .attr("x2", function(d) {
-                                    return xScale(d.min)
+                                    return xScale(d.min == null? minval : d.min)
                                 })
                                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -574,27 +589,27 @@
                                 .data(data)
                                 .enter()
                                 .append("line")
-                                .attr("stroke", get_color)
+                                .attr("stroke", function(d) { return d.color })
                                 .attr("stroke-width", 2)
                                 .attr("y1", function(d) {
-                                    if(d.max == 1e+3)
+                                    if(d.max == null)
                                     {
                                         return yScale(d.label) + bandwidth/2
                                     }
                                     return yScale(d.label) + 0.5 * yScale.bandwidth() - bandwidth/lwidth
                                 })
                                 .attr("y2", function(d) {
-                                    if(d.max == 1e+3)
+                                    if(d.max == null)
                                     {
                                         return yScale(d.label) + bandwidth/2
                                     }
                                     return yScale(d.label) + 0.5 * yScale.bandwidth() + bandwidth/lwidth
                                 })
                                 .attr("x1", function(d) {
-                                    return xScale(d.max)
+                                    return xScale(d.max == null? maxval : d.max)
                                 })
                                 .attr("x2", function(d) {
-                                    return xScale(d.max)
+                                    return xScale(d.max == null? maxval : d.max)
                                 })
                                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
