@@ -84,11 +84,13 @@ Once this configuration is done, starting the database and web frontend is done 
 ```shell
 $ docker-compose build .
 $ docker-compose up
-$ docker-compose exec web makemigrations
-$ docker-compose exec web migrate
-$ docker-compose exec web loaddata stats
+$ docker-compose exec web python manage.py makemigrations exevada
+$ docker-compose exec web python manage.py migrate exevada
+$ docker-compose exec web python manage.py loaddata stats
+
 $ docker-compose exec web runserver
 ```
+
 In production mode, it will be necessary to change the secret key to a real secret key, the allowed host to the actual domain and to collect the static files after building the image:
 ```shell
 $ docker-compose exec web collectstatic
