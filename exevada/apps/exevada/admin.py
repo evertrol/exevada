@@ -3,6 +3,9 @@ from django.contrib.gis.db import models as geo_models
 from leaflet.admin import LeafletGeoAdmin, LeafletGeoAdminMixin, LeafletWidget
 from nested_inline.admin import NestedStackedInline, NestedModelAdmin
 from . import models
+import io
+import csv
+import itertools
 
 @admin.register(models.EventType)
 class EventType(admin.ModelAdmin):
@@ -44,6 +47,7 @@ class PressRelease(admin.ModelAdmin):
     fields = ('title', 'authors', ('medium', 'date'), ('url', 'doi')) 
     pass
 
+
 from django import forms
 
 def small_inputs():
@@ -66,17 +70,73 @@ class ObservationAnalysisInline(admin.TabularInline):
     inlines = []
     formfield_overrides = small_inputs()
 
+
+class ModelAnalysisAdminForm(forms.ModelForm):
+    csvupload = forms.FileField(required=False)
+
+    class Meta:
+        fields = [ 'csvupload', 'dataset', 'y_pres', 'y_past', 'sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max', 'PR', 'PR_min', 'PR_max', 'Delta_I', 'Delta_I_min', 'Delta_I_max', 'comments' ]
+
+    def save(self, commit=True):
+        print("Saving ModelAnalysisAdminForm")
+
+        instance = super(ModelAnalysisAdminForm, self).save(commit=False)
+        csvfile = self['csvupload'].value()
+
+        if csvfile:
+            reader = csv.reader(io.StringIO(csvfile.read().decode('utf-8')))
+            values = list(reader)[20]
+
+            keys = ['dataset', 'distribution', 'model', 'sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max', 'eventmag', 'return', 'return_min', 'return_max', 'GMSTnow', 'PR', 'PR_min', 'PR_max', 'Delta_I', 'Delta_I_min', 'Delta_I_max']
+
+            print(len(keys))
+            print(len(values))
+
+            print(keys)
+            print(values)
+
+            params = {k:v for k,v in zip(keys,values)}
+
+            print(params)
+
+            print(instance, type(instance))
+
+            instance.sigma = params['sigma']
+            instance.sigma_min = params['sigma_min']
+            instance.sigma_max = params['sigma_max']
+            instance.xi = params['xi']
+            instance.xi_min = params['xi_min']
+            instance.xi_max = params['xi_max']
+            instance.Delta_I = params['Delta_I']
+            instance.Delta_I_min = params['Delta_I_min']
+            instance.Delta_I_max = params['Delta_I_max']
+            instance.PR = params['PR']
+            instance.PR_min = params['PR_min']
+            instance.PR_max = params['PR_max']
+
+        if commit:
+            instance.save()
+        return instance
+
 class ModelAnalysisInline(admin.TabularInline):
     model = models.ModelAnalysis
-    fields = (  ('dataset' ),
-                ('y_pres', 'y_past'),
-                ('sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max'), 
-                ('PR', 'PR_min', 'PR_max'), 
-                ('Delta_I', 'Delta_I_min', 'Delta_I_max'),
-                'comments')
+    form = ModelAnalysisAdminForm
+    formfield_overrides = small_inputs()
     extra = 0
     inlines = []
-    formfield_overrides = small_inputs()
+
+#class ModelAnalysisInline(admin.TabularInline):
+#    model = models.ModelAnalysis
+#    fields = (  ('dataset' ),
+#                ('y_pres', 'y_past'),
+#                ('sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max'), 
+#                ('PR', 'PR_min', 'PR_max'), 
+#                ('Delta_I', 'Delta_I_min', 'Delta_I_max'),
+#                'comments')
+#    extra = 0
+#    inlines = []
+#    formfield_overrides = small_inputs()
+
 
 class AttributionInline(NestedStackedInline):
     model = models.Attribution
@@ -84,9 +144,8 @@ class AttributionInline(NestedStackedInline):
     fieldsets = ( (None, {'fields': (('description', 'location'),)}),
                   ('Method', {'fields': (('variable', 'distribution', 'statistical_method'),)}),
                   ('Synthesis', {'fields' : ('return_period', ('PR', 'PR_min', 'PR_max'), ('Delta_I', 'Delta_I_min', 'Delta_I_max'), 'conclusions')}),
-                  ('Dissemination', {'fields' : ('contact', 'webpage', 'papers', 'press_communication', ('research_data', 'research_data_doi'))}) )
+                  ('Dissemination', {'fields' : ('contact', 'webpage', 'papers', 'press_communication', ('research_data', 'research_data_doi'))}), )
     inlines = [ObservationAnalysisInline, ModelAnalysisInline]
-
 
 class ImpactResourceInline(NestedStackedInline):
     model = models.ImpactResource

@@ -8,7 +8,6 @@ class EventForm(ModelForm):
         model = Event
         exclude = []
 
-
 class RegionForm(ModelForm):
     class Meta:
         model = Region

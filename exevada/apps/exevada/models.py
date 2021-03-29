@@ -161,6 +161,7 @@ class Attribution(SynthesisBase):
     press_communication = models.ManyToManyField("PressCommunication", help_text="Press communication related to the attribution", blank=True)
     research_data = models.URLField(max_length=512, help_text="Research material and data location", blank=True, null=True)
     research_data_doi = models.CharField(max_length=256, help_text="DOI (no URL) of research data", blank=True, null=True)
+
     def __str__(self):
         return ' '.join([str(self.event), self.description])
 
