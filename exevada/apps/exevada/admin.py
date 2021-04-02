@@ -28,23 +28,23 @@ class StatisticalMethod(admin.ModelAdmin):
 
 @admin.register(models.AttributionVariable)
 class AttributionVariable(admin.ModelAdmin):
-    fields = (('short_name', 'long_name'), ('unit', 'unit_symbol', 'delta_I_unit_symbol'), 'description') 
+    fields = (('short_name', 'long_name'), ('unit', 'unit_symbol', 'delta_I_unit_symbol'), 'description')
 
 @admin.register(models.ObservationDataSet)
 class ObservationDataSet(admin.ModelAdmin):
-    fields = ('name', 'description', ('url', 'doi'), 'papers') 
+    fields = ('name', 'description', ('url', 'doi'), 'papers')
 
 @admin.register(models.ModelDataSet)
 class ModelDataSet(admin.ModelAdmin):
-    fields = ('model_name', 'model_description', 'experiment', 'experiment_description',('url', 'doi'), 'papers') 
+    fields = ('model_name', 'model_description', 'experiment', 'experiment_description',('url', 'doi'), 'papers')
 
 @admin.register(models.JournalPaper)
 class JournalPaper(admin.ModelAdmin):
-    fields = ('title', 'authors', ('journal', 'issue', 'date'), ('url', 'doi')) 
+    fields = ('title', 'authors', ('journal', 'issue', 'date'), ('url', 'doi'))
 
 @admin.register(models.PressCommunication)
 class PressRelease(admin.ModelAdmin):
-    fields = ('title', 'authors', ('medium', 'date'), ('url', 'doi')) 
+    fields = ('title', 'authors', ('medium', 'date'), ('url', 'doi'))
     pass
 
 
@@ -57,14 +57,30 @@ def small_inputs():
         geo_models.IntegerField: {'widget': forms.NumberInput(attrs={'style':'width:6ch'})},
         geo_models.PositiveIntegerField: {'widget': forms.NumberInput(attrs={'style':'width:6ch'})},}
 
+
+def read_model_analysis_csv(csvfile):
+
+    # List of keys corresponding to the column headings
+    keys = ['dataset', 'distribution', 'model', 'sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max', 'eventmag', 'return', 'return_min', 'return_max', 'GMSTnow', 'PR', 'PR_min', 'PR_max', 'Delta_I', 'Delta_I_min', 'Delta_I_max']
+
+    # Index of line in csv that contains the values
+    values_row_index = 20
+
+    reader = csv.reader(io.StringIO(csvfile.read().decode('utf-8')))
+    values = list(reader)[values_row_index]
+    params = {k:v for k,v in zip(keys,values)}
+
+    return params
+
+
 class ObservationAnalysisInline(admin.TabularInline):
     model = models.ObservationAnalysis
     fields = (  ('dataset', 'variable_value' ),
                 ('y_pres', 'y_past'),
-                ('sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max'), 
-                ('PR', 'PR_min', 'PR_max'), 
+                ('sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max'),
+                ('PR', 'PR_min', 'PR_max'),
                 ('Delta_I', 'Delta_I_min', 'Delta_I_max'),
-                ('T_return', 'T_return_min', 'T_return_max'), 
+                ('T_return', 'T_return_min', 'T_return_max'),
                 'comments')
     extra = 0
     inlines = []
@@ -84,23 +100,28 @@ class ModelAnalysisAdminForm(forms.ModelForm):
         csvfile = self['csvupload'].value()
 
         if csvfile:
-            reader = csv.reader(io.StringIO(csvfile.read().decode('utf-8')))
-            values = list(reader)[20]
+            # Read in analysis parameters from the provided csvfile
+            params = read_model_analysis_csv(csvfile)
 
-            keys = ['dataset', 'distribution', 'model', 'sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max', 'eventmag', 'return', 'return_min', 'return_max', 'GMSTnow', 'PR', 'PR_min', 'PR_max', 'Delta_I', 'Delta_I_min', 'Delta_I_max']
+            # Set dataset entry
+            matching_datasets = list(models.ModelDataSet.objects.filter(model_name=params['dataset']))
 
-            print(len(keys))
-            print(len(values))
+            if len(matching_datasets) == 0:
+                print(f"No exiting model data sets found matching name '{params['dataset']}'")
+                return instance
+            elif len(matching_datasets) > 1:
+                print(f"Warning: more than one ModelDataSet with name {params['dataset']}. Assigning first matching result.")
+            model_dataset = matching_datasets[0]
 
-            print(keys)
-            print(values)
+            print(model_dataset, type(model_dataset))
 
-            params = {k:v for k,v in zip(keys,values)}
+            instance.dataset = model_dataset
 
-            print(params)
+            # Leave field blank if value is infinite
+            if params['PR_max'] == 'inf':
+                params['PR_max'] = None
 
-            print(instance, type(instance))
-
+            # Assign values to the corresponding fields in the form
             instance.sigma = params['sigma']
             instance.sigma_min = params['sigma_min']
             instance.sigma_max = params['sigma_max']
@@ -124,19 +145,6 @@ class ModelAnalysisInline(admin.TabularInline):
     formfield_overrides = small_inputs()
     extra = 0
     inlines = []
-
-#class ModelAnalysisInline(admin.TabularInline):
-#    model = models.ModelAnalysis
-#    fields = (  ('dataset' ),
-#                ('y_pres', 'y_past'),
-#                ('sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max'), 
-#                ('PR', 'PR_min', 'PR_max'), 
-#                ('Delta_I', 'Delta_I_min', 'Delta_I_max'),
-#                'comments')
-#    extra = 0
-#    inlines = []
-#    formfield_overrides = small_inputs()
-
 
 class AttributionInline(NestedStackedInline):
     model = models.Attribution
