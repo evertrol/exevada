@@ -98,6 +98,7 @@ def convert_csv_to_model_analyses(csvfile, attribution):
 
     # Create a new ModelAnalysis object for each distinct analysis found in the csv
     new_analyses = []
+    datasets = {}
     for params in uploaded_csv_params:
 
         # Prepare a new entry to the database for this CSV row
@@ -126,15 +127,18 @@ def convert_csv_to_model_analyses(csvfile, attribution):
         new_analysis.PR_min = params['PR_min']
         new_analysis.PR_max = params['PR_max']
 
-        # Set dataset entry
-        matching_datasets = list(models.ModelDataSet.objects.filter(model_name=params['dataset']))
+        # Look for existing dataset with this name in lookup
+        if params['dataset'] in datasets:
+            model_dataset = datasets[params['dataset']]
+        else:
+            try:
+                model_dataset = models.ModelDataSet.objects.get(model_name=params['dataset'])
+            except models.ModelDataSet.DoesNotExist:
+                print(f"No exiting model data sets found matching name '{params['dataset']}'. Creating new dataset.")
+                model_dataset = models.ModelDataSet()
+                model_dataset.model_name = params['dataset']
 
-        if len(matching_datasets) == 0:
-            print(f"No exiting model data sets found matching name '{params['dataset']}'")
-            return instance
-        elif len(matching_datasets) > 1:
-            print(f"Warning: more than one ModelDataSet with name {params['dataset']}. Assigning first matching result.")
-        model_dataset = matching_datasets[0]
+            datasets[params['dataset']] = model_dataset
 
         print(model_dataset, type(model_dataset))
 
@@ -194,6 +198,7 @@ class ModelAnalysisAdminForm(forms.ModelForm):
             # Save new model analyses to database
             for new_analysis in new_analyses_from_csv:
                 if isinstance(new_analysis, models.ModelAnalysis):
+                    new_analysis.dataset.save()
                     new_analysis.save()
 
         if commit:
