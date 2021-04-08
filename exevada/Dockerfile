@@ -9,21 +9,21 @@ ENV PYTHONWRITEBYTECODE 1
 RUN mkdir /opt/exevada
 WORKDIR /opt/exevada
 
+# install dependencies
+RUN apt update --yes
+RUN apt-get install binutils libproj-dev gdal-bin musl-dev ncat --yes
+COPY ./requirements.txt /opt/exevada/requirements.txt
+RUN pip install -r requirements.txt
+
 # copy project
 COPY ./apps/ /opt/exevada/apps/
 COPY ./entrypoint.sh /opt/exevada/entrypoint.sh
 COPY ./manage.py /opt/exevada/manage.py
 COPY ./project/ /opt/exevada/project/
-COPY ./requirements.txt /opt/exevada/requirements.txt
 COPY ./wsgi.py /opt/exevada/wsgi.py
 
 # copy wordpress files
 # COPY ./wp-content/ /opt/exevada/project/static/wp-content/
-
-# install dependencies
-RUN apt update --yes
-RUN apt-get install binutils libproj-dev gdal-bin musl-dev ncat --yes
-RUN pip install -r requirements.txt
 
 # entrypoint
 ENTRYPOINT ["/opt/exevada/entrypoint.sh"]
