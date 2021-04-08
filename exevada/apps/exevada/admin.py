@@ -63,14 +63,32 @@ def read_model_analysis_csv(csvfile):
     # List of keys corresponding to the column headings
     keys = ['dataset', 'distribution', 'model', 'sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max', 'eventmag', 'return', 'return_min', 'return_max', 'GMSTnow', 'PR', 'PR_min', 'PR_max', 'Delta_I', 'Delta_I_min', 'Delta_I_max']
 
-    # Index of line in csv that contains the values
-    values_row_index = 20
+    # Index of (first) line in csv that contains the values
+    first_row_index = 20
 
-    reader = csv.reader(io.StringIO(csvfile.read().decode('utf-8')))
-    values = list(reader)[values_row_index]
-    params = {k:v for k,v in zip(keys,values)}
+    csv_rows = list(csv.reader(io.StringIO(csvfile.read().decode('utf-8'))))
 
-    return params
+    rows = []
+    for values in csv_rows[first_row_index:]:
+        print(values, len(values))
+
+        # Zip up the values in the row with the keys for each column heading
+        params = {k:v for k,v in zip(keys,values)}
+
+        # If the dataset entry is empty (or just whitespace) then assume we have reached the end of the input rows
+        if not params['dataset'] or params['dataset'].isspace():
+            print('Found row starting with empty Dataset field. Stopping CSV parsing.')
+            break
+
+        # If something is provided for dataset, but not distribution then similarly assume this is not an entry row
+        if not params['distribution'] or params['distribution'].isspace():
+            print('Row has dataset specified, but not distribution. Stopping CSV parsing.')
+            break
+
+        # If we think it's a real analysis row, add it to the list.
+        rows.append(params)
+
+    return rows
 
 
 class ObservationAnalysisInline(admin.TabularInline):
@@ -97,47 +115,64 @@ class ModelAnalysisAdminForm(forms.ModelForm):
         print("Saving ModelAnalysisAdminForm")
 
         instance = super(ModelAnalysisAdminForm, self).save(commit=False)
+
         csvfile = self['csvupload'].value()
 
         if csvfile:
-            # Read in analysis parameters from the provided csvfile
-            params = read_model_analysis_csv(csvfile)
+            # If we're reading from the uploaded CSV, then we don't want Django
+            # to try to commit the present form as well. So set commit to False.
+            commit = False
 
-            # Set dataset entry
-            matching_datasets = list(models.ModelDataSet.objects.filter(model_name=params['dataset']))
+            # Read in analysis parameters from the provided csvfile, one line at a time
+            for params in read_model_analysis_csv(csvfile):
 
-            if len(matching_datasets) == 0:
-                print(f"No exiting model data sets found matching name '{params['dataset']}'")
-                return instance
-            elif len(matching_datasets) > 1:
-                print(f"Warning: more than one ModelDataSet with name {params['dataset']}. Assigning first matching result.")
-            model_dataset = matching_datasets[0]
+                # Prepare a new entry to the database for this CSV row
+                # and link it to the parent Attribution entry
+                new_analysis = models.ModelAnalysis()
+                new_analysis.attribution = instance.attribution
 
-            print(model_dataset, type(model_dataset))
+                # Convert upper bound infs to blank fields
+                for k in ['sigma_max', 'xi_max', 'Delta_I_max', 'PR_max']:
+                    if params[k] == 'inf':
+                        params[k] = None
 
-            instance.dataset = model_dataset
+                # Assign values to the corresponding fields in the form
+                new_analysis.sigma = params['sigma']
+                new_analysis.sigma_min = params['sigma_min']
+                new_analysis.sigma_max = params['sigma_max']
+                new_analysis.xi = params['xi']
+                new_analysis.xi_min = params['xi_min']
+                new_analysis.xi_max = params['xi_max']
+                new_analysis.Delta_I = params['Delta_I']
+                new_analysis.Delta_I_min = params['Delta_I_min']
+                new_analysis.Delta_I_max = params['Delta_I_max']
+                new_analysis.PR = params['PR']
+                new_analysis.PR_min = params['PR_min']
+                new_analysis.PR_max = params['PR_max']
 
-            # Leave field blank if value is infinite
-            if params['PR_max'] == 'inf':
-                params['PR_max'] = None
+                # Set dataset entry
+                matching_datasets = list(models.ModelDataSet.objects.filter(model_name=params['dataset']))
 
-            # Assign values to the corresponding fields in the form
-            instance.sigma = params['sigma']
-            instance.sigma_min = params['sigma_min']
-            instance.sigma_max = params['sigma_max']
-            instance.xi = params['xi']
-            instance.xi_min = params['xi_min']
-            instance.xi_max = params['xi_max']
-            instance.Delta_I = params['Delta_I']
-            instance.Delta_I_min = params['Delta_I_min']
-            instance.Delta_I_max = params['Delta_I_max']
-            instance.PR = params['PR']
-            instance.PR_min = params['PR_min']
-            instance.PR_max = params['PR_max']
+                if len(matching_datasets) == 0:
+                    print(f"No exiting model data sets found matching name '{params['dataset']}'")
+                    return instance
+                elif len(matching_datasets) > 1:
+                    print(f"Warning: more than one ModelDataSet with name {params['dataset']}. Assigning first matching result.")
+                model_dataset = matching_datasets[0]
+
+                print(model_dataset, type(model_dataset))
+
+                new_analysis.dataset = model_dataset
+
+                print(new_analysis, type(new_analysis))
+
+                # Save new model analysis to database
+                new_analysis.save()
 
         if commit:
             instance.save()
         return instance
+
 
 class ModelAnalysisInline(admin.TabularInline):
     model = models.ModelAnalysis
@@ -155,6 +190,7 @@ class AttributionInline(NestedStackedInline):
                   ('Dissemination', {'fields' : ('contact', 'webpage', 'papers', 'press_communication', ('research_data', 'research_data_doi'))}), )
     inlines = [ObservationAnalysisInline, ModelAnalysisInline]
 
+
 class ImpactResourceInline(NestedStackedInline):
     model = models.ImpactResource
     extra = 0
@@ -162,11 +198,10 @@ class ImpactResourceInline(NestedStackedInline):
 
 @admin.register(models.Event)
 class Event(LeafletGeoAdminMixin, NestedModelAdmin):
-    fieldsets = ( (None, {'fields': ('name', 'event_type', 'image', 'image_caption', 'comments')}), 
+    fieldsets = ( (None, {'fields': ('name', 'event_type', 'image', 'image_caption', 'comments')}),
                 ('Event Definition', {'fields' : (('region','map_location'), ('start_date', 'duration', 'season'))}),
                 ('Impact', {'fields' : (('deaths', 'people_affected', 'economical_loss'), ('socio_economic_impact'), ('environmental_impact'))}),
                 ('Attribution request', {'fields': ('atrribution_consideration_statement',)}) )
-                
     inlines = [
         ImpactResourceInline, AttributionInline,
     ]
