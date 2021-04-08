@@ -91,6 +91,62 @@ def read_model_analysis_csv(csvfile):
     return rows
 
 
+def convert_csv_to_model_analyses(csvfile, attribution):
+
+    # Read in the model analysis parameters from the given csv file
+    uploaded_csv_params = read_model_analysis_csv(csvfile)
+
+    # Create a new ModelAnalysis object for each distinct analysis found in the csv
+    new_analyses = []
+    for params in uploaded_csv_params:
+
+        # Prepare a new entry to the database for this CSV row
+        # and link it to the parent Attribution entry
+        new_analysis = models.ModelAnalysis()
+        new_analysis.attribution = attribution
+
+        print('params=',params, type(params))
+
+        # Convert upper bound infs to blank fields
+        for k in ['sigma_max', 'xi_max', 'Delta_I_max', 'PR_max']:
+            if params[k] == 'inf':
+                params[k] = None
+
+        # Assign values to the corresponding fields in the form
+        new_analysis.sigma = params['sigma']
+        new_analysis.sigma_min = params['sigma_min']
+        new_analysis.sigma_max = params['sigma_max']
+        new_analysis.xi = params['xi']
+        new_analysis.xi_min = params['xi_min']
+        new_analysis.xi_max = params['xi_max']
+        new_analysis.Delta_I = params['Delta_I']
+        new_analysis.Delta_I_min = params['Delta_I_min']
+        new_analysis.Delta_I_max = params['Delta_I_max']
+        new_analysis.PR = params['PR']
+        new_analysis.PR_min = params['PR_min']
+        new_analysis.PR_max = params['PR_max']
+
+        # Set dataset entry
+        matching_datasets = list(models.ModelDataSet.objects.filter(model_name=params['dataset']))
+
+        if len(matching_datasets) == 0:
+            print(f"No exiting model data sets found matching name '{params['dataset']}'")
+            return instance
+        elif len(matching_datasets) > 1:
+            print(f"Warning: more than one ModelDataSet with name {params['dataset']}. Assigning first matching result.")
+        model_dataset = matching_datasets[0]
+
+        print(model_dataset, type(model_dataset))
+
+        new_analysis.dataset = model_dataset
+
+        print(new_analysis, type(new_analysis))
+
+        new_analyses.append(new_analysis)
+
+    return new_analyses
+
+
 class ObservationAnalysisInline(admin.TabularInline):
     model = models.ObservationAnalysis
     fields = (  ('dataset', 'variable_value' ),
@@ -111,63 +167,34 @@ class ModelAnalysisAdminForm(forms.ModelForm):
     class Meta:
         fields = [ 'csvupload', 'dataset', 'y_pres', 'y_past', 'sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max', 'PR', 'PR_min', 'PR_max', 'Delta_I', 'Delta_I_min', 'Delta_I_max', 'comments' ]
 
+    def clean(self):
+        print('Called clean()')
+        cleaned_data = super(ModelAnalysisAdminForm, self).clean()
+        print('Called super clean')
+        csvfile = cleaned_data['csvupload']
+        if csvfile:
+            print('Clean found csvfile:', csvfile, type(csvfile))
+            print(cleaned_data, type(cleaned_data))
+            cleaned_data['csvupload'] = convert_csv_to_model_analyses(csvfile, cleaned_data['attribution'])
+
+        return cleaned_data
+
     def save(self, commit=True):
         print("Saving ModelAnalysisAdminForm")
 
         instance = super(ModelAnalysisAdminForm, self).save(commit=False)
 
-        csvfile = self['csvupload'].value()
+        new_analyses_from_csv = self.cleaned_data['csvupload']
 
-        if csvfile:
+        if new_analyses_from_csv:
             # If we're reading from the uploaded CSV, then we don't want Django
             # to try to commit the present form as well. So set commit to False.
             commit = False
 
-            # Read in analysis parameters from the provided csvfile, one line at a time
-            for params in read_model_analysis_csv(csvfile):
-
-                # Prepare a new entry to the database for this CSV row
-                # and link it to the parent Attribution entry
-                new_analysis = models.ModelAnalysis()
-                new_analysis.attribution = instance.attribution
-
-                # Convert upper bound infs to blank fields
-                for k in ['sigma_max', 'xi_max', 'Delta_I_max', 'PR_max']:
-                    if params[k] == 'inf':
-                        params[k] = None
-
-                # Assign values to the corresponding fields in the form
-                new_analysis.sigma = params['sigma']
-                new_analysis.sigma_min = params['sigma_min']
-                new_analysis.sigma_max = params['sigma_max']
-                new_analysis.xi = params['xi']
-                new_analysis.xi_min = params['xi_min']
-                new_analysis.xi_max = params['xi_max']
-                new_analysis.Delta_I = params['Delta_I']
-                new_analysis.Delta_I_min = params['Delta_I_min']
-                new_analysis.Delta_I_max = params['Delta_I_max']
-                new_analysis.PR = params['PR']
-                new_analysis.PR_min = params['PR_min']
-                new_analysis.PR_max = params['PR_max']
-
-                # Set dataset entry
-                matching_datasets = list(models.ModelDataSet.objects.filter(model_name=params['dataset']))
-
-                if len(matching_datasets) == 0:
-                    print(f"No exiting model data sets found matching name '{params['dataset']}'")
-                    return instance
-                elif len(matching_datasets) > 1:
-                    print(f"Warning: more than one ModelDataSet with name {params['dataset']}. Assigning first matching result.")
-                model_dataset = matching_datasets[0]
-
-                print(model_dataset, type(model_dataset))
-
-                new_analysis.dataset = model_dataset
-
-                print(new_analysis, type(new_analysis))
-
-                # Save new model analysis to database
-                new_analysis.save()
+            # Save new model analyses to database
+            for new_analysis in new_analyses_from_csv:
+                if isinstance(new_analysis, models.ModelAnalysis):
+                    new_analysis.save()
 
         if commit:
             instance.save()

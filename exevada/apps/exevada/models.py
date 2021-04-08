@@ -64,7 +64,7 @@ class ObservationDataSet(models.Model):
 class ModelDataSet(models.Model):
     model_name = models.CharField(max_length=128, help_text="Model output dataset")
     model_description = models.TextField(help_text="Model description", blank=True)
-    experiment = models.CharField(max_length=512, help_text="Experiment")
+    experiment = models.CharField(max_length=512, help_text="Experiment", blank=True)
     experiment_description = models.TextField(help_text="Experiment description", blank=True)
     url = models.URLField(max_length=512, blank=True)
     doi = models.CharField(max_length=256, help_text="DOI of dataset", blank=True)
@@ -138,7 +138,7 @@ class ModelAnalysis(AnalysisBase):
         Bad = "bad", _("Bad")
         Reasonable = "reasonable", _("Reasonable")
     attribution = models.ForeignKey("Attribution", on_delete=models.CASCADE, related_name="models")
-    dataset = models.ForeignKey("ModelDataSet", on_delete=models.CASCADE)
+    dataset = models.ForeignKey("ModelDataSet", on_delete=models.CASCADE, blank=True)
     def __str__(self):
         return '-'.join([str(self.attribution), str(self.dataset)])
     class Meta:
