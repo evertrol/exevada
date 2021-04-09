@@ -61,11 +61,12 @@ def small_inputs():
 def read_model_analysis_csv(csvfile):
 
     # List of keys corresponding to the column headings
-    keys = ['dataset', 'distribution', 'model', 'sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max', 'eventmag', 'return', 'return_min', 'return_max', 'GMSTnow', 'PR', 'PR_min', 'PR_max', 'Delta_I', 'Delta_I_min', 'Delta_I_max']
+    keys = ['dataset', 'n_members', 'statmodel', 'seasonalcycle', 'spatialpattern', 'sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max', 'statprop', 'conclusion', 'include_model', 'threshold300y', 'GMSTnow',  'PR', 'PR_min', 'PR_max', 'Delta_I', 'Delta_I_min', 'Delta_I_max', 'GMSTfuture', 'PR_future', 'PR_min_future', 'PR_max_future', 'Delta_I_future', 'Delta_I_min_future', 'Delta_I_max_future']
 
     # Index of (first) line in csv that contains the values
-    first_row_index = 20
+    first_row_index = 9
 
+    # CSV uploaded as bytes - assume UTF-8 encoding
     csv_rows = list(csv.reader(io.StringIO(csvfile.read().decode('utf-8'))))
 
     rows = []
@@ -74,17 +75,11 @@ def read_model_analysis_csv(csvfile):
         # Zip up the values in the row with the keys for each column heading
         params = {k:v for k,v in zip(keys,values)}
 
-        # If the dataset entry is empty (or just whitespace) then assume we have reached the end of the input rows
-        if not params['dataset'] or params['dataset'].isspace():
-            print('Log: Found row starting with empty Dataset field. Stopping CSV parsing.')
+        # If the 'Include model?' field is empty (or just whitespace) then assume we have reached the end of the input rows
+        if not params['include_model'] or params['include_model'].isspace():
+            print('Log: Found row with empty "Include model?" field. Stopping CSV parsing.')
             break
 
-        # If something is provided for dataset, but not distribution then similarly assume this is not an entry row
-        if not params['distribution'] or params['distribution'].isspace():
-            print('Log: Row has dataset specified, but not distribution. Stopping CSV parsing.')
-            break
-
-        # If we think it's a real analysis row, add it to the list.
         rows.append(params)
 
     return rows
@@ -104,6 +99,14 @@ def convert_csv_to_model_analyses(csvfile, attribution, create_dataset_if_not_fo
     datasets_lookup = {}
     for params in uploaded_csv_params:
 
+        # If 'Include Model' is not 'Y' or 'N' then throw error
+        include_model_str = params['include_model']
+        if include_model_str != 'Y' and include_model_str != 'N':
+            raise ValidationError(f'"Include Model?" field must be either "Y" or "N". Found "{include_model_str}".')
+
+        if include_model_str == 'N':
+            continue
+
         # Prepare a new entry to the database for this CSV row
         # and link it to the parent Attribution entry
         new_analysis = models.ModelAnalysis()
@@ -111,10 +114,19 @@ def convert_csv_to_model_analyses(csvfile, attribution, create_dataset_if_not_fo
 
         print('params=',params, type(params))
 
-        # Convert upper bound infs to blank fields
+        # Convert upper bound infs to blank fields and throw error if -inf provided
         for k in ['sigma_max', 'xi_max', 'Delta_I_max', 'PR_max']:
             if params[k] == 'inf':
                 params[k] = None
+            elif params[k] == '-inf':
+                raise forms.ValidationError(f'{k} is -inf, but this is not physical.')
+
+        # Convert lower bound -infs to blank fields and throw error if inf provided
+        for k in ['sigma_min', 'xi_min', 'Delta_I_min', 'PR_min']:
+            if params[k] == '-inf':
+                params[k] = None
+            elif params[k] == 'inf':
+                raise forms.ValidationError(f'{k} is inf, but this is not physical.')
 
         # Assign values to the corresponding fields in the form
         new_analysis.sigma = params['sigma']
@@ -161,11 +173,12 @@ def convert_csv_to_model_analyses(csvfile, attribution, create_dataset_if_not_fo
 def read_observation_analysis_csv(csvfile):
 
     # List of keys corresponding to the column headings
-    keys = ['dataset', 'distribution', 'model', 'sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max', 'eventmag', 'T_return', 'T_return_min', 'T_return_max', 'GMSTnow', 'PR', 'PR_min', 'PR_max', 'Delta_I', 'Delta_I_min', 'Delta_I_max']
+    keys = ['dataset', 'distribution', 'statmodel', 'sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max', 'eventmag', 'T_return', 'T_return_min', 'T_return_max', 'GMSTnow', 'PR', 'PR_min', 'PR_max', 'Delta_I', 'Delta_I_min', 'Delta_I_max']
 
     # Index of (first) line in csv that contains the values
     first_row_index = 20
 
+    # CSV uploaded as bytes - assume UTF-8 encoding
     csv_rows = list(csv.reader(io.StringIO(csvfile.read().decode('utf-8'))))
 
     rows = []
