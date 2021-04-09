@@ -224,6 +224,7 @@ def convert_csv_to_observation_analyses(csvfile, attribution):
                 raise forms.ValidationError(f'{k} is inf, but this is not physical.')
 
         # Assign values to the corresponding fields in the form
+        new_analysis.variable_value = params['eventmag']
         new_analysis.sigma = params['sigma']
         new_analysis.sigma_min = params['sigma_min']
         new_analysis.sigma_max = params['sigma_max']
