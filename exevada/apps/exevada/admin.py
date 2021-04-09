@@ -174,6 +174,10 @@ class ModelAnalysisAdminForm(forms.ModelForm):
     class Meta:
         fields = [ 'csvupload', 'dataset', 'y_pres', 'y_past', 'sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max', 'PR', 'PR_min', 'PR_max', 'Delta_I', 'Delta_I_min', 'Delta_I_max', 'comments' ]
 
+    def __init__(self, *args, **kwargs):
+        super(ModelAnalysisAdminForm, self).__init__(*args, **kwargs)
+        self.fields['csvupload'].widget.attrs.update({'accept': '.csv'})
+
     def clean(self):
         print('Log: Called clean()')
         cleaned_data = super(ModelAnalysisAdminForm, self).clean()
