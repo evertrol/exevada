@@ -316,6 +316,10 @@ class ObservationAnalysisAdminForm(forms.ModelForm):
                     print(e, type(e))
                     augmented_error_msg = f'[In uploaded CSV] Observation analysis {i+1}: {e.__str__()}'
                     raise forms.ValidationError(augmented_error_msg)
+        else:
+            # Ensure that the dataset field is set in cases where form is being filled in manually (no CSV uploaded)
+            if not cleaned_data['dataset']:
+                raise forms.ValidationError('Dataset field cannot be left blank.')
 
         return cleaned_data
 
@@ -378,6 +382,10 @@ class ModelAnalysisAdminForm(forms.ModelForm):
                     print(e, type(e))
                     augmented_error_msg = f'[In uploaded CSV] Model analysis {i+1}: {e.__str__()}'
                     raise forms.ValidationError(augmented_error_msg)
+        else:
+            # Ensure that the dataset field is set in cases where form is being filled in manually (no CSV uploaded)
+            if not cleaned_data['dataset']:
+                raise forms.ValidationError('Dataset field cannot be left blank.')
 
         return cleaned_data
 
