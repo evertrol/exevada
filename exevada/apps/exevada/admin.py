@@ -137,7 +137,7 @@ def convert_csv_to_model_analyses(csvfile, attribution):
             try:
                 model_dataset = models.ModelDataSet.objects.get(model_name=params['dataset'])
             except models.ModelDataSet.DoesNotExist:
-                print(f"Log: No exiting model data sets found matching name '{params['dataset']}'. Creating new dataset.")
+                print(f"Log: No existing model data sets found matching name '{params['dataset']}'. Creating new dataset.")
                 model_dataset = models.ModelDataSet()
                 model_dataset.model_name = params['dataset']
 
@@ -154,15 +154,179 @@ def convert_csv_to_model_analyses(csvfile, attribution):
     return new_analyses
 
 
+def read_observation_analysis_csv(csvfile):
+
+    # List of keys corresponding to the column headings
+    keys = ['dataset', 'distribution', 'model', 'sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max', 'eventmag', 'return', 'return_min', 'return_max', 'GMSTnow', 'PR', 'PR_min', 'PR_max', 'Delta_I', 'Delta_I_min', 'Delta_I_max']
+
+    # Index of (first) line in csv that contains the values
+    first_row_index = 20
+
+    csv_rows = list(csv.reader(io.StringIO(csvfile.read().decode('utf-8'))))
+
+    rows = []
+    for values in csv_rows[first_row_index:]:
+
+        # Zip up the values in the row with the keys for each column heading
+        params = {k:v for k,v in zip(keys,values)}
+
+        # If the dataset entry is empty (or just whitespace) then assume we have reached the end of the input rows
+        if not params['dataset'] or params['dataset'].isspace():
+            print('Log: Found row starting with empty Dataset field. Stopping CSV parsing.')
+            break
+
+        # If something is provided for dataset, but not distribution then similarly assume this is not an entry row
+        if not params['distribution'] or params['distribution'].isspace():
+            print('Log: Row has dataset specified, but not distribution. Stopping CSV parsing.')
+            break
+
+        # If we think it's a real analysis row, add it to the list.
+        rows.append(params)
+
+    return rows
+
+
+def convert_csv_to_observation_analyses(csvfile, attribution):
+
+    print('attribution=', attribution, type(attribution))
+
+    # Read in the observation analysis parameters from the given csv file
+    uploaded_csv_params = read_observation_analysis_csv(csvfile)
+
+    # Check that at least one row of values was found
+    if len(uploaded_csv_params) == 0:
+        raise forms.ValidationError('No valid observation analysis rows found in uploaded CSV')
+
+    # Create a new ObservationAnalysis object for each distinct analysis found in the csv
+    new_analyses = []
+    datasets_lookup = {}
+    for params in uploaded_csv_params:
+
+        # Prepare a new entry to the database for this CSV row
+        # and link it to the parent Attribution entry
+        new_analysis = models.ObservationAnalysis()
+        new_analysis.attribution = attribution
+
+        print('params=',params, type(params))
+
+        # Convert upper bound infs to blank fields and throw error if -inf provided
+        for k in ['sigma_max', 'xi_max', 'Delta_I_max', 'PR_max']:
+            if params[k] == 'inf':
+                params[k] = None
+            elif params[k] == '-inf':
+                raise forms.ValidationError(f'{k} is -inf, but this is not physical.')
+
+        # Convert lower bound -infs to blank fields and throw error if inf provided
+        for k in ['sigma_min', 'xi_min', 'Delta_I_min', 'PR_min']:
+            if params[k] == '-inf':
+                params[k] = None
+            elif params[k] == 'inf':
+                raise forms.ValidationError(f'{k} is inf, but this is not physical.')
+
+        # Assign values to the corresponding fields in the form
+        new_analysis.sigma = params['sigma']
+        new_analysis.sigma_min = params['sigma_min']
+        new_analysis.sigma_max = params['sigma_max']
+        new_analysis.xi = params['xi']
+        new_analysis.xi_min = params['xi_min']
+        new_analysis.xi_max = params['xi_max']
+        new_analysis.Delta_I = params['Delta_I']
+        new_analysis.Delta_I_min = params['Delta_I_min']
+        new_analysis.Delta_I_max = params['Delta_I_max']
+        new_analysis.PR = params['PR']
+        new_analysis.PR_min = params['PR_min']
+        new_analysis.PR_max = params['PR_max']
+
+        # TODO: Find out why this is not in the spreadsheet
+        new_analysis.T_return = 0.0
+
+        # Look for existing dataset with this name in lookup
+        if params['dataset'] in datasets_lookup:
+            observation_dataset = datasets_lookup[params['dataset']]
+        else:
+            try:
+                observation_dataset = models.ObservationDataSet.objects.get(name=params['dataset'])
+            except models.ObservationDataSet.DoesNotExist:
+                print(f"Log: No existing observation data sets found matching name '{params['dataset']}'. Creating new dataset.")
+                observation_dataset = models.ObservationDataSet()
+                observation_dataset.name = params['dataset']
+
+            datasets_lookup[params['dataset']] = observation_dataset
+
+        print(observation_dataset, type(observation_dataset))
+
+        new_analysis.dataset = observation_dataset
+
+        print('NEW ANALYSIS', new_analysis, type(new_analysis))
+
+        new_analyses.append(new_analysis)
+
+    return new_analyses
+
+
+class ObservationAnalysisAdminForm(forms.ModelForm):
+    csvupload = forms.FileField(required=False)
+
+    class Meta:
+        fields = [ 'csvupload', 'dataset', 'variable_value', 'y_pres', 'y_past', 'sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max', 'PR', 'PR_min', 'PR_max', 'Delta_I', 'Delta_I_min', 'Delta_I_max', 'T_return', 'T_return_min', 'T_return_max', 'comments' ]
+
+    def __init__(self, *args, **kwargs):
+        super(ObservationAnalysisAdminForm, self).__init__(*args, **kwargs)
+        self.fields['csvupload'].widget.attrs.update({'accept': '.csv'})
+
+    def clean(self):
+        print('Log: Called clean()')
+        cleaned_data = super(ObservationAnalysisAdminForm, self).clean()
+        csvfile = cleaned_data['csvupload']
+        if csvfile:
+            print(cleaned_data)
+            print(cleaned_data['attribution'])
+
+
+            # Convert the uploaded csv file to a list of new ObservationAnalysis instances.
+            # Store these in cleaned_data so that the save() method can find and commit them to the db.
+            cleaned_data['csvupload'] = convert_csv_to_observation_analyses(csvfile, cleaned_data['attribution'])
+
+            # Validate each new model instance so that any exceptions are raised here and communicated to the user
+            # (rather than occurring in the save() call which causes everything to error out)
+            for i, new_observation_instance in enumerate(cleaned_data['csvupload']):
+                print('CLEAN', i, new_observation_instance, type(new_observation_instance), new_observation_instance.attribution)
+
+                try:
+                    new_observation_instance.full_clean()
+                except forms.ValidationError as e:
+                    print(e, type(e))
+                    augmented_error_msg = f'[In uploaded CSV] Observation analysis {i+1}: {e.__str__()}'
+                    raise forms.ValidationError(augmented_error_msg)
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        print("Log: Saving ObservationAnalysisAdminForm")
+
+        instance = super(ObservationAnalysisAdminForm, self).save(commit=False)
+
+        new_analyses_from_csv = self.cleaned_data['csvupload']
+
+        if new_analyses_from_csv:
+            # If we're reading from the uploaded CSV, then we don't want Django
+            # to try to commit the present form as well. So set commit to False.
+            commit = False
+
+            # Save new observation analyses to database (and their corresponding ModelDataSets if new
+            for new_analysis in new_analyses_from_csv:
+                if isinstance(new_analysis, models.ObservationAnalysis):
+                    new_analysis.dataset.save()
+                    new_analysis.save()
+
+        if commit:
+            instance.save()
+        return instance
+
+
 class ObservationAnalysisInline(admin.TabularInline):
     model = models.ObservationAnalysis
-    fields = (  ('dataset', 'variable_value' ),
-                ('y_pres', 'y_past'),
-                ('sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max'),
-                ('PR', 'PR_min', 'PR_max'),
-                ('Delta_I', 'Delta_I_min', 'Delta_I_max'),
-                ('T_return', 'T_return_min', 'T_return_max'),
-                'comments')
+    form = ObservationAnalysisAdminForm
     extra = 0
     inlines = []
     formfield_overrides = small_inputs()
@@ -176,7 +340,7 @@ class ModelAnalysisAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ModelAnalysisAdminForm, self).__init__(*args, **kwargs)
-        self.fields['csvupload'].widget.attrs.update({'accept': '.csv', 'style':'width:12ch'})
+        self.fields['csvupload'].widget.attrs.update({'accept': '.csv'})
 
     def clean(self):
         print('Log: Called clean()')
