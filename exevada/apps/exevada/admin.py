@@ -90,7 +90,7 @@ def read_model_analysis_csv(csvfile):
     return rows
 
 
-def convert_csv_to_model_analyses(csvfile, attribution):
+def convert_csv_to_model_analyses(csvfile, attribution, create_dataset_if_not_found=False):
 
     # Read in the model analysis parameters from the given csv file
     uploaded_csv_params = read_model_analysis_csv(csvfile)
@@ -131,15 +131,19 @@ def convert_csv_to_model_analyses(csvfile, attribution):
         new_analysis.PR_max = params['PR_max']
 
         # Look for existing dataset with this name in lookup
-        if params['dataset'] in datasets_lookup:
-            model_dataset = datasets_lookup[params['dataset']]
+        dataset_name = params['dataset']
+        if dataset_name in datasets_lookup:
+            model_dataset = datasets_lookup[dataset_name]
         else:
             try:
-                model_dataset = models.ModelDataSet.objects.get(model_name=params['dataset'])
+                model_dataset = models.ModelDataSet.objects.get(model_name=dataset_name)
             except models.ModelDataSet.DoesNotExist:
-                print(f"Log: No existing model data sets found matching name '{params['dataset']}'. Creating new dataset.")
-                model_dataset = models.ModelDataSet()
-                model_dataset.model_name = params['dataset']
+                if create_dataset_if_not_found:
+                    print(f"Log: No existing model data sets found matching name '{dataset_name}'. Creating new dataset.")
+                    model_dataset = models.ModelDataSet()
+                    model_dataset.model_name = dataset_name
+                else:
+                    raise forms.ValidationError(f'A Model Data set with name "{dataset_name}" was not found in the database. Please create it first.')
 
             datasets_lookup[params['dataset']] = model_dataset
 
@@ -240,7 +244,6 @@ def convert_csv_to_observation_analyses(csvfile, attribution):
         new_analysis.T_return = params['T_return']
         new_analysis.T_return_min = params['T_return_min']
         new_analysis.T_return_max = params['T_return_max']
-
 
         # Look for existing dataset with this name in lookup
         if params['dataset'] in datasets_lookup:
