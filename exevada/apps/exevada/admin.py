@@ -157,7 +157,7 @@ def convert_csv_to_model_analyses(csvfile, attribution):
 def read_observation_analysis_csv(csvfile):
 
     # List of keys corresponding to the column headings
-    keys = ['dataset', 'distribution', 'model', 'sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max', 'eventmag', 'return', 'return_min', 'return_max', 'GMSTnow', 'PR', 'PR_min', 'PR_max', 'Delta_I', 'Delta_I_min', 'Delta_I_max']
+    keys = ['dataset', 'distribution', 'model', 'sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max', 'eventmag', 'T_return', 'T_return_min', 'T_return_max', 'GMSTnow', 'PR', 'PR_min', 'PR_max', 'Delta_I', 'Delta_I_min', 'Delta_I_max']
 
     # Index of (first) line in csv that contains the values
     first_row_index = 20
@@ -210,14 +210,14 @@ def convert_csv_to_observation_analyses(csvfile, attribution):
         print('params=',params, type(params))
 
         # Convert upper bound infs to blank fields and throw error if -inf provided
-        for k in ['sigma_max', 'xi_max', 'Delta_I_max', 'PR_max']:
+        for k in ['sigma_max', 'xi_max', 'Delta_I_max', 'PR_max', 'T_return_max']:
             if params[k] == 'inf':
                 params[k] = None
             elif params[k] == '-inf':
                 raise forms.ValidationError(f'{k} is -inf, but this is not physical.')
 
         # Convert lower bound -infs to blank fields and throw error if inf provided
-        for k in ['sigma_min', 'xi_min', 'Delta_I_min', 'PR_min']:
+        for k in ['sigma_min', 'xi_min', 'Delta_I_min', 'PR_min', 'T_return_min']:
             if params[k] == '-inf':
                 params[k] = None
             elif params[k] == 'inf':
@@ -236,9 +236,10 @@ def convert_csv_to_observation_analyses(csvfile, attribution):
         new_analysis.PR = params['PR']
         new_analysis.PR_min = params['PR_min']
         new_analysis.PR_max = params['PR_max']
+        new_analysis.T_return = params['T_return']
+        new_analysis.T_return_min = params['T_return_min']
+        new_analysis.T_return_max = params['T_return_max']
 
-        # TODO: Find out why this is not in the spreadsheet
-        new_analysis.T_return = 0.0
 
         # Look for existing dataset with this name in lookup
         if params['dataset'] in datasets_lookup:
