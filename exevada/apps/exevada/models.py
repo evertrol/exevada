@@ -52,7 +52,7 @@ class AttributionVariable(models.Model):
 
 
 class ObservationDataSet(models.Model):
-    name = models.CharField(max_length=256, help_text="Observation dataset")
+    name = models.CharField(max_length=256, help_text="Observation dataset", unique=True)
     url = models.URLField(max_length=512, blank=True)
     description = models.TextField(help_text="Dataset description", blank=True)
     doi = models.CharField(max_length=256, help_text="DOI of dataset", blank=True)
@@ -122,8 +122,8 @@ class PressCommunication(Publication):
 class ObservationAnalysis(AnalysisBase):
     attribution = models.ForeignKey("Attribution", on_delete=models.CASCADE, related_name="observations")
     variable_value = models.FloatField(help_text="Variable value for this observation dataset", default=0.0)
-    dataset = models.ForeignKey("ObservationDataSet", on_delete=models.CASCADE)
-    T_return = models.PositiveIntegerField(help_text="Return period (yr)", validators=[MinValueValidator(0.0)])
+    dataset = models.ForeignKey("ObservationDataSet", on_delete=models.CASCADE, blank=True)
+    T_return = models.PositiveIntegerField(help_text="Return period (yr)", validators=[MinValueValidator(0.0)], blank=True)
     T_return_min = models.PositiveIntegerField(help_text="Return period lower bound (yr)", validators=[MinValueValidator(0.0)], null=True, blank=True)
     T_return_max = models.PositiveIntegerField(help_text="Return period upper bound (yr)", validators=[MinValueValidator(0.0)], null=True, blank=True)
     def __str__(self):
