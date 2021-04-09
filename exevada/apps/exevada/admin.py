@@ -70,19 +70,18 @@ def read_model_analysis_csv(csvfile):
 
     rows = []
     for values in csv_rows[first_row_index:]:
-        print(values, len(values))
 
         # Zip up the values in the row with the keys for each column heading
         params = {k:v for k,v in zip(keys,values)}
 
         # If the dataset entry is empty (or just whitespace) then assume we have reached the end of the input rows
         if not params['dataset'] or params['dataset'].isspace():
-            print('Found row starting with empty Dataset field. Stopping CSV parsing.')
+            print('Log: Found row starting with empty Dataset field. Stopping CSV parsing.')
             break
 
         # If something is provided for dataset, but not distribution then similarly assume this is not an entry row
         if not params['distribution'] or params['distribution'].isspace():
-            print('Row has dataset specified, but not distribution. Stopping CSV parsing.')
+            print('Log: Row has dataset specified, but not distribution. Stopping CSV parsing.')
             break
 
         # If we think it's a real analysis row, add it to the list.
@@ -96,9 +95,13 @@ def convert_csv_to_model_analyses(csvfile, attribution):
     # Read in the model analysis parameters from the given csv file
     uploaded_csv_params = read_model_analysis_csv(csvfile)
 
+    # Check that at least one row of values was found
+    if len(uploaded_csv_params) == 0:
+        raise forms.ValidationError('No valid model analysis rows found in uploaded CSV')
+
     # Create a new ModelAnalysis object for each distinct analysis found in the csv
     new_analyses = []
-    datasets = {}
+    datasets_lookup = {}
     for params in uploaded_csv_params:
 
         # Prepare a new entry to the database for this CSV row
@@ -128,17 +131,17 @@ def convert_csv_to_model_analyses(csvfile, attribution):
         new_analysis.PR_max = params['PR_max']
 
         # Look for existing dataset with this name in lookup
-        if params['dataset'] in datasets:
-            model_dataset = datasets[params['dataset']]
+        if params['dataset'] in datasets_lookup:
+            model_dataset = datasets_lookup[params['dataset']]
         else:
             try:
                 model_dataset = models.ModelDataSet.objects.get(model_name=params['dataset'])
             except models.ModelDataSet.DoesNotExist:
-                print(f"No exiting model data sets found matching name '{params['dataset']}'. Creating new dataset.")
+                print(f"Log: No exiting model data sets found matching name '{params['dataset']}'. Creating new dataset.")
                 model_dataset = models.ModelDataSet()
                 model_dataset.model_name = params['dataset']
 
-            datasets[params['dataset']] = model_dataset
+            datasets_lookup[params['dataset']] = model_dataset
 
         print(model_dataset, type(model_dataset))
 
@@ -172,19 +175,28 @@ class ModelAnalysisAdminForm(forms.ModelForm):
         fields = [ 'csvupload', 'dataset', 'y_pres', 'y_past', 'sigma', 'sigma_min', 'sigma_max', 'xi', 'xi_min', 'xi_max', 'PR', 'PR_min', 'PR_max', 'Delta_I', 'Delta_I_min', 'Delta_I_max', 'comments' ]
 
     def clean(self):
-        print('Called clean()')
+        print('Log: Called clean()')
         cleaned_data = super(ModelAnalysisAdminForm, self).clean()
-        print('Called super clean')
         csvfile = cleaned_data['csvupload']
         if csvfile:
-            print('Clean found csvfile:', csvfile, type(csvfile))
-            print(cleaned_data, type(cleaned_data))
+            # Convert the uploaded csv file to a list of new ModelAnalysis instances.
+            # Store these in cleaned_data so that the save() method can find and commit them to the db.
             cleaned_data['csvupload'] = convert_csv_to_model_analyses(csvfile, cleaned_data['attribution'])
+
+            # Validate each new model instance so that any exceptions are raised here and communicated to the user
+            # (rather than occurring in the save() call which causes everything to error out)
+            for i, new_analysis_instance in enumerate(cleaned_data['csvupload']):
+                try:
+                    new_analysis_instance.full_clean()
+                except forms.ValidationError as e:
+                    print(e, type(e))
+                    augmented_error_msg = f'[In uploaded CSV] Model analysis {i+1}: {e.__str__()}'
+                    raise forms.ValidationError(augmented_error_msg)
 
         return cleaned_data
 
     def save(self, commit=True):
-        print("Saving ModelAnalysisAdminForm")
+        print("Log: Saving ModelAnalysisAdminForm")
 
         instance = super(ModelAnalysisAdminForm, self).save(commit=False)
 
@@ -195,7 +207,7 @@ class ModelAnalysisAdminForm(forms.ModelForm):
             # to try to commit the present form as well. So set commit to False.
             commit = False
 
-            # Save new model analyses to database
+            # Save new model analyses to database (and their corresponding ModelDataSets if new
             for new_analysis in new_analyses_from_csv:
                 if isinstance(new_analysis, models.ModelAnalysis):
                     new_analysis.dataset.save()
