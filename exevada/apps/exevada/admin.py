@@ -176,7 +176,7 @@ class ModelAnalysisAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ModelAnalysisAdminForm, self).__init__(*args, **kwargs)
-        self.fields['csvupload'].widget.attrs.update({'accept': '.csv'})
+        self.fields['csvupload'].widget.attrs.update({'accept': '.csv', 'style':'width:12ch'})
 
     def clean(self):
         print('Log: Called clean()')
