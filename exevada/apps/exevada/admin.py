@@ -85,7 +85,7 @@ def read_model_analysis_csv(csvfile):
     return rows
 
 
-def convert_csv_to_model_analyses(csvfile, attribution, create_dataset_if_not_found=False):
+def convert_csv_to_model_analyses(csvfile, create_dataset_if_not_found=False):
 
     # Read in the model analysis parameters from the given csv file
     uploaded_csv_params = read_model_analysis_csv(csvfile)
@@ -108,11 +108,7 @@ def convert_csv_to_model_analyses(csvfile, attribution, create_dataset_if_not_fo
             continue
 
         # Prepare a new entry to the database for this CSV row
-        # and link it to the parent Attribution entry
         new_analysis = models.ModelAnalysis()
-        new_analysis.attribution = attribution
-
-        print('params=',params, type(params))
 
         # Convert upper bound infs to blank fields and throw error if -inf provided
         for k in ['sigma_max', 'xi_max', 'Delta_I_max', 'PR_max']:
@@ -159,12 +155,7 @@ def convert_csv_to_model_analyses(csvfile, attribution, create_dataset_if_not_fo
 
             datasets_lookup[params['dataset']] = model_dataset
 
-        print(model_dataset, type(model_dataset))
-
         new_analysis.dataset = model_dataset
-
-        print(new_analysis, type(new_analysis))
-
         new_analyses.append(new_analysis)
 
     return new_analyses
@@ -203,9 +194,7 @@ def read_observation_analysis_csv(csvfile):
     return rows
 
 
-def convert_csv_to_observation_analyses(csvfile, attribution):
-
-    print('attribution=', attribution, type(attribution))
+def convert_csv_to_observation_analyses(csvfile):
 
     # Read in the observation analysis parameters from the given csv file
     uploaded_csv_params = read_observation_analysis_csv(csvfile)
@@ -220,11 +209,7 @@ def convert_csv_to_observation_analyses(csvfile, attribution):
     for params in uploaded_csv_params:
 
         # Prepare a new entry to the database for this CSV row
-        # and link it to the parent Attribution entry
         new_analysis = models.ObservationAnalysis()
-        new_analysis.attribution = attribution
-
-        print('params=',params, type(params))
 
         # Convert upper bound infs to blank fields and throw error if -inf provided
         for k in ['sigma_max', 'xi_max', 'Delta_I_max', 'PR_max', 'T_return_max']:
@@ -271,12 +256,7 @@ def convert_csv_to_observation_analyses(csvfile, attribution):
 
             datasets_lookup[params['dataset']] = observation_dataset
 
-        print(observation_dataset, type(observation_dataset))
-
         new_analysis.dataset = observation_dataset
-
-        print('NEW ANALYSIS', new_analysis, type(new_analysis))
-
         new_analyses.append(new_analysis)
 
     return new_analyses
@@ -293,27 +273,19 @@ class ObservationAnalysisAdminForm(forms.ModelForm):
         self.fields['csvupload'].widget.attrs.update({'accept': '.csv'})
 
     def clean(self):
-        print('Log: Called clean()')
         cleaned_data = super(ObservationAnalysisAdminForm, self).clean()
         csvfile = cleaned_data['csvupload']
         if csvfile:
-            print(cleaned_data)
-            print(cleaned_data['attribution'])
-
-
             # Convert the uploaded csv file to a list of new ObservationAnalysis instances.
             # Store these in cleaned_data so that the save() method can find and commit them to the db.
-            cleaned_data['csvupload'] = convert_csv_to_observation_analyses(csvfile, cleaned_data['attribution'])
+            cleaned_data['csvupload'] = convert_csv_to_observation_analyses(csvfile)
 
             # Validate each new model instance so that any exceptions are raised here and communicated to the user
             # (rather than occurring in the save() call which causes everything to error out)
             for i, new_observation_instance in enumerate(cleaned_data['csvupload']):
-                print('CLEAN', i, new_observation_instance, type(new_observation_instance), new_observation_instance.attribution)
-
                 try:
-                    new_observation_instance.full_clean()
+                    new_observation_instance.clean_fields(exclude='attribution')
                 except forms.ValidationError as e:
-                    print(e, type(e))
                     augmented_error_msg = f'[In uploaded CSV] Observation analysis {i+1}: {e.__str__()}'
                     raise forms.ValidationError(augmented_error_msg)
         else:
@@ -338,7 +310,12 @@ class ObservationAnalysisAdminForm(forms.ModelForm):
             # Save new observation analyses to database (and their corresponding ModelDataSets if new
             for new_analysis in new_analyses_from_csv:
                 if isinstance(new_analysis, models.ObservationAnalysis):
+                    # Save the (potentially new) dataset object first
                     new_analysis.dataset.save()
+
+                    # Set the attribution to the parent Attribution model's key
+                    # and save this analysis to the DB
+                    new_analysis.attribution = instance.attribution
                     new_analysis.save()
 
         if commit:
@@ -371,15 +348,14 @@ class ModelAnalysisAdminForm(forms.ModelForm):
         if csvfile:
             # Convert the uploaded csv file to a list of new ModelAnalysis instances.
             # Store these in cleaned_data so that the save() method can find and commit them to the db.
-            cleaned_data['csvupload'] = convert_csv_to_model_analyses(csvfile, cleaned_data['attribution'])
+            cleaned_data['csvupload'] = convert_csv_to_model_analyses(csvfile, create_dataset_if_not_found=False)
 
             # Validate each new model instance so that any exceptions are raised here and communicated to the user
             # (rather than occurring in the save() call which causes everything to error out)
             for i, new_analysis_instance in enumerate(cleaned_data['csvupload']):
                 try:
-                    new_analysis_instance.full_clean()
+                    new_analysis_instance.clean_fields(exclude='attribution')
                 except forms.ValidationError as e:
-                    print(e, type(e))
                     augmented_error_msg = f'[In uploaded CSV] Model analysis {i+1}: {e.__str__()}'
                     raise forms.ValidationError(augmented_error_msg)
         else:
@@ -404,7 +380,12 @@ class ModelAnalysisAdminForm(forms.ModelForm):
             # Save new model analyses to database (and their corresponding ModelDataSets if new
             for new_analysis in new_analyses_from_csv:
                 if isinstance(new_analysis, models.ModelAnalysis):
+                    # Save the (potentially new) dataset object first
                     new_analysis.dataset.save()
+
+                    # Set the attribution to the parent Attribution model's key
+                    # and save this analysis to the DB
+                    new_analysis.attribution = instance.attribution
                     new_analysis.save()
 
         if commit:
@@ -418,6 +399,7 @@ class ModelAnalysisInline(admin.TabularInline):
     formfield_overrides = small_inputs()
     extra = 0
     inlines = []
+
 
 class AttributionInline(NestedStackedInline):
     model = models.Attribution
