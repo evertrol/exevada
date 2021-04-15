@@ -206,7 +206,7 @@ def convert_csv_to_observation_analyses(csvfile):
     # Create a new ObservationAnalysis object for each distinct analysis found in the csv
     new_analyses = []
     datasets_lookup = {}
-    for params in uploaded_csv_params:
+    for i, params in enumerate(uploaded_csv_params):
 
         # Prepare a new entry to the database for this CSV row
         new_analysis = models.ObservationAnalysis()
@@ -227,9 +227,15 @@ def convert_csv_to_observation_analyses(csvfile):
 
         # Enure that return periods are integer values (if not blank)
         for k in ['T_return', 'T_return_min', 'T_return_max']:
-            if params[k] is not None and not isinstance(params[k], int):
-                print(f'Warning: {k} contains non-integer value {params[k]}. Converting to integer.')
-                params[k] = int(params[k])
+            if params[k] is not None:
+                try:
+                    params[k] = int(params[k])
+                except ValueError:
+                    print(f'Warning: {k} contains value {params[k]} which does not convert to an integer. Attempting forced conversion with rounding.')
+                    try:
+                        params[k] = int(round(float(params[k])))
+                    except ValueError:
+                        raise forms.ValidationError(f'In analysis row {i}, field {k}: Could not convert {params[k]} to integer.')
 
         # Assign values to the corresponding fields in the form
         new_analysis.variable_value = params['eventmag']
@@ -302,10 +308,8 @@ class ObservationAnalysisAdminForm(forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True):
-        print("Log: Saving ObservationAnalysisAdminForm")
 
         instance = super(ObservationAnalysisAdminForm, self).save(commit=False)
-
         new_analyses_from_csv = self.cleaned_data['csvupload']
 
         if new_analyses_from_csv:
@@ -348,7 +352,6 @@ class ModelAnalysisAdminForm(forms.ModelForm):
         self.fields['csvupload'].widget.attrs.update({'accept': '.csv'})
 
     def clean(self):
-        print('Log: Called clean()')
         cleaned_data = super(ModelAnalysisAdminForm, self).clean()
         csvfile = cleaned_data['csvupload']
         if csvfile:
@@ -372,10 +375,8 @@ class ModelAnalysisAdminForm(forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True):
-        print("Log: Saving ModelAnalysisAdminForm")
 
         instance = super(ModelAnalysisAdminForm, self).save(commit=False)
-
         new_analyses_from_csv = self.cleaned_data['csvupload']
 
         if new_analyses_from_csv:
