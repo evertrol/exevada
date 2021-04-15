@@ -225,6 +225,12 @@ def convert_csv_to_observation_analyses(csvfile):
             elif params[k] == 'inf':
                 raise forms.ValidationError(f'{k} is inf, but this is not physical.')
 
+        # Enure that return periods are integer values (if not blank)
+        for k in ['T_return', 'T_return_min', 'T_return_max']:
+            if params[k] is not None and not isinstance(params[k], int):
+                print(f'Warning: {k} contains non-integer value {params[k]}. Converting to integer.')
+                params[k] = int(params[k])
+
         # Assign values to the corresponding fields in the form
         new_analysis.variable_value = params['eventmag']
         new_analysis.sigma = params['sigma']
